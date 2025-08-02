@@ -18,7 +18,50 @@ Webbiography:
 - https://github.com/UniversalRobots/Universal_Robots_ROS2_Description
 - https://github.com/UniversalRobots/Universal_Robots_ROS2_GZ_Simulation
 
-## Set up a UR Description configuration package
+## 1. Set up a UR project in virtual environment for simulation
+
+For **simulation** we will use TheConstruct interface. When working in Laboratory groups, we suggest you:
+- One student plays the role of `Director`. This student makes a "Fork" of the Professor's github project.
+- The `Director` accept the other students as `Collaborators`
+![](./Images/01_Setup/github_collaborators.png)
+- Then the `Collaborators` will make a "fork" of the `Director`'s github project.
+- The `Collaborators` will be able to update the github `Director`'s project and participate on the project generation
+
+To work on the project (during lab sessions or for homework), each student has to clone the `Director`'s github project in the `TheConstruct working environment`.
+- Open your ROS2 Humble environment:  https://app.theconstructsim.com/
+- Open your created ROS2_Humble Rosject project
+- First time, clone your forked `Director`'s github project
+  ```shell
+  cd /home/user
+  git clone https://github.com/director_username/ROS2_UR_manipulation_ws
+  cd ROS2_UR_manipulation_ws
+  colcon build
+  ```
+  >Successives times, in TheConstruct simulation environment, you can update the project with:
+  ```shell
+  git pull
+  ```
+- Add in .bashrc the lines:
+  ````shell
+  export ROS_DOMAIN_ID=0
+  export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
+  export GAZEBO_MODEL_PATH=/home/user/ROS2_rUBot_mecanum_ws/src/my_robot_bringup/models:$GAZEBO_MODEL_PATH
+  source /opt/ros/humble/setup.bash
+  source /usr/share/colcon_argcomplete/hook/colcon-argcomplete.bash
+  source /home/user/ROS2_rUBot_tutorial_ws/install/setup.bash
+  source /home/user/ROS2_rUBot_mecanum_ws/install/setup.bash
+  source /home/user/ROS2_UR_manipulation_ws/install/setup.bash
+  #cd /home/user/ROS2_rUBot_tutorial_ws
+  #cd /home/user/ROS2_rUBot_mecanum_ws
+  cd /home/user/ROS2_UR_manipulation_ws
+  ````
+- If the compilation process returns warnings on "Deprecated setup tools", proceed with:
+  ````shell
+  sudo apt install python3-pip
+  pip3 list | grep setuptools
+  pip3 install setuptools==58.2.0
+  ````
+- If the compilation process returns wardings on PREFIX_PATH:
 We will need to install the following packages:
 ````shell
 unset COLCON_PREFIX_PATH
@@ -30,66 +73,44 @@ source install/setup.bash
 ````
 We have now our workspace ready with the gripper only used for simulation purposes.
 
-## Set up a MoveIt2 configuration package for a manipulator robot
 
- MoveIt is a ROS framework that allows you to perform motion planning with a specific robot.
+## **3. Update and syncronize the repository project**
 
- it enables you to plan a movement (motion) from point A to point B without colliding with anything.
+When working in Laboratory groups, we suggest you:
 
- MoveIt2 provides a friendly and easy-to-use GUI, which helps you interact with the robot to perform motion planning.
+- `Before working on the project`, update the local repository with possible changes in github origin repository
+  ````shell
+  git pull
+  ````
+- You can work with your local repository for the speciffic project session
+- `Once you have finished and you want to syncronize the changes` you have made and update the github origin repository, type:
+  ````shell
+  git add .
+  git commit -m "Message"
+  ````
+- When you will Push them, the first time you will be asked to link the repository to your github account:
+- Open a terminal in and type your credentials:
+  ```shell
+  git config --global user.email "xxx@alumnes.ub.edu"
+  git config --global user.name "your_github_username"
+  git commit -m "Message"
+  git push
+  ```
+  > change the email and username and message
+- You will have to specify your Username and Password (Personal Access Token you have generated)
 
- Webgraphy:
- - [moveit_install](https://moveit.ai/install-moveit2/binary/)
- - [moveit_Documentation](https://moveit.picknik.ai/humble/index.html)
+To obtain the **PAT** in github follow the instructions:
 
-First of all, we need to install moveit2 packages:
- ````shell
- sudo apt install ros-humble-moveit
- ````
- The `MoveIt Setup Assistant` is typically used to generate and configure this package easily.
- ````shell
- ros2 launch moveit_setup_assistant setup_assistant.launch.py
- ````
-The next thing you'll need to do is load your robot file. 
-- Click on the Create New MoveIt Configuration Package button.
-- Now, click the Browse button. Select the URDF file named `ur_moveit.urdf.xacro`. Great! So, you've loaded the xacro file of your robot to the MoveIt Setup Assistant. Now, let's start configuring some things.
-- Select `Self-Collisions`:
-    - Set the Sampling Density value to the maximum
-    - choose any value between 95% to 99% for the Min. collisions for "always"-colliding pairs
-    - click on the Generate Collision Matrix button
-- Select `Virtual joints`: they are used to attach the robot to the world.
-    - Create a virtual joint named `fixed_base`, which attaches the base_link frame to the world frame. 
-- Open the "Planning Groups" tab and click the "Add Group" button:
-    -  create a new group called ur_manipulator, which will use the KDLKinematicsPlugin.
-    - Next, click on the Add Kin. Chain button
-    - Then select (from the Robot Links list) both the Base Link and Tool0 Link that form the robot's arm, excluding the gripper. 
-    - click on the Save button to finish the configuration.
-- You have now defined a group of joints for performing Motion Planning, and you've defined the plugin you want to use to calculate those plans.
-- Let's also define another planning group for the gripper (`add group`)
-    - Select `add joints` an choose the robotiq gripper joints.
-    - save the configuration.
-    ![Gripper Planning Group](./Images/moveit_groups.png)
-- Now, create a couple of predefined poses for your robot arm.
-    -  define a pose which is named `home`, with the following joint position values:0, -2.5, 1.5, -1.5, -1.5, 0
-    - define a pose which is named `gripper_open`, with the following joint position values:0
-    -  define a pose which is named `gripper_close`, with the following joint position values:0.78
-- Define a new end effector named `hand_ee` with the following configuration:
-    - Set the End Effector Group to gripper
-    - Set the Parent Link to wrist_3_link. This is the last link of the arm where the end effector is attached.
-    - Set the Parent Group to ur_manipulator.
-- Next, define the ROS Controllers (`MoveIt Controllers`) that allow you to interact (and execute the motions) within the Gazebo simulation.
-    - click on the Auto Add FollowJointsTrajectory Controllers For Each Planning Group button
-    - That's it! You have just defined the MoveIt Controllers that will allow the MoveIt2 package to plan and execute the motions on the simulated robot. 
-- You need to fill in the Author Information
-- go to the "Configuration Files" tab:
-    - click the "Browse" button. 
-    - Navigate to the ros2_ws/src directory, 
-    - create a new directory, and name it my_moveit_config. "Choose" the directory you've just created.
-    - click the Generate Package button.
+  - Log in to GitHub
+  - Click on your profile picture and select `settings`
+  - Select `Developer Settings`
+  - Select Access Personal Access Tokens: Choose Tokens (classic)
+  - Click Generate new token (classic) and configure it:
+    - Add a note to describe the purpose of the token, e.g., "ROS repo sync."
+    - Set the expiration (e.g., 30 days, 60 days, or no expiration).
+    - Under Scopes, select the permissions required:
+      - For repository sync, you usually need: repo (full control of private repositories)
+    - Click Generate token
+  - Once the token is generated, copy it immediately. You won't be able to see it again after leaving the page.
 
-- Finally, the last step will be to build your workspace:
-````shell
-colcon build
-source install/setup.bash
-````
-## Fine tune the generated MoveIt2 package
+The `Director`'s github repository has been updated!

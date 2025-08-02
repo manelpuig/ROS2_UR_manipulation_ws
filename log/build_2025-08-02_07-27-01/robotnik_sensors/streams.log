@@ -1,0 +1,190 @@
+[0.097s] Invoking command in '/home/user/ROS2_UR_manipulation_ws/build/robotnik_sensors': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/user/ROS2_rUBot_tutorial_ws/install/ros2_tutorial:/home/user/ROS2_rUBot_tutorial_ws/install/ros2_move_turtle:/home/user/ROS2_rUBot_mecanum_ws/install/my_robot_driver:/home/user/ROS2_rUBot_mecanum_ws/install/my_robot_nav_control:/home/user/ROS2_rUBot_mecanum_ws/install/my_robot_control:/home/user/ROS2_rUBot_mecanum_ws/install/my_robot_ai_identification:/home/simulations/ros2_sims_ws/install/rclrs_tests:/home/simulations/ros2_sims_ws/install/examples_rclrs_minimal_client_service:/home/simulations/ros2_sims_ws/install/sensor_msgs_py:/home/simulations/ros2_sims_ws/install/examples_rclrs_minimal_pub_sub:/home/simulations/ros2_sims_ws/install/examples_rclrs_message_demo:/home/simulations/ros2_sims_ws/install/rclrs:/home/simulations/ros2_sims_ws/install/rosidl_runtime_rs:/opt/ros/humble _=/usr/bin/env /usr/bin/cmake /home/user/ROS2_UR_manipulation_ws/src/robotnik_sensors/robotnik_sensors -DCMAKE_INSTALL_PREFIX=/home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors
+[4.472s] -- The C compiler identification is GNU 11.4.0
+[6.729s] -- The CXX compiler identification is GNU 11.4.0
+[6.844s] -- Detecting C compiler ABI info
+[7.071s] -- Detecting C compiler ABI info - done
+[7.078s] -- Check for working C compiler: /usr/bin/cc - skipped
+[7.088s] -- Detecting C compile features
+[7.144s] -- Detecting C compile features - done
+[7.149s] -- Detecting CXX compiler ABI info
+[7.488s] -- Detecting CXX compiler ABI info - done
+[7.493s] -- Check for working CXX compiler: /usr/bin/c++ - skipped
+[7.493s] -- Detecting CXX compile features
+[7.494s] -- Detecting CXX compile features - done
+[7.509s] -- Found ament_cmake: 1.3.8 (/opt/ros/humble/share/ament_cmake/cmake)
+[8.013s] -- Found Python3: /usr/bin/python3 (found version "3.10.12") found components: Interpreter 
+[8.452s] -- Found ament_lint_auto: 0.12.10 (/opt/ros/humble/share/ament_lint_auto/cmake)
+[8.804s] -- Added test 'copyright' to check source files copyright and LICENSE
+[8.823s] -- Added test 'lint_cmake' to check CMake code style
+[8.833s] -- Added test 'xmllint' to check XML markup files
+[8.837s] -- Configuring done
+[8.840s] -- Generating done
+[8.841s] -- Build files have been written to: /home/user/ROS2_UR_manipulation_ws/build/robotnik_sensors
+[8.846s] Invoked command in '/home/user/ROS2_UR_manipulation_ws/build/robotnik_sensors' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/user/ROS2_rUBot_tutorial_ws/install/ros2_tutorial:/home/user/ROS2_rUBot_tutorial_ws/install/ros2_move_turtle:/home/user/ROS2_rUBot_mecanum_ws/install/my_robot_driver:/home/user/ROS2_rUBot_mecanum_ws/install/my_robot_nav_control:/home/user/ROS2_rUBot_mecanum_ws/install/my_robot_control:/home/user/ROS2_rUBot_mecanum_ws/install/my_robot_ai_identification:/home/simulations/ros2_sims_ws/install/rclrs_tests:/home/simulations/ros2_sims_ws/install/examples_rclrs_minimal_client_service:/home/simulations/ros2_sims_ws/install/sensor_msgs_py:/home/simulations/ros2_sims_ws/install/examples_rclrs_minimal_pub_sub:/home/simulations/ros2_sims_ws/install/examples_rclrs_message_demo:/home/simulations/ros2_sims_ws/install/rclrs:/home/simulations/ros2_sims_ws/install/rosidl_runtime_rs:/opt/ros/humble _=/usr/bin/env /usr/bin/cmake /home/user/ROS2_UR_manipulation_ws/src/robotnik_sensors/robotnik_sensors -DCMAKE_INSTALL_PREFIX=/home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors
+[8.849s] Invoking command in '/home/user/ROS2_UR_manipulation_ws/build/robotnik_sensors': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/user/ROS2_rUBot_tutorial_ws/install/ros2_tutorial:/home/user/ROS2_rUBot_tutorial_ws/install/ros2_move_turtle:/home/user/ROS2_rUBot_mecanum_ws/install/my_robot_driver:/home/user/ROS2_rUBot_mecanum_ws/install/my_robot_nav_control:/home/user/ROS2_rUBot_mecanum_ws/install/my_robot_control:/home/user/ROS2_rUBot_mecanum_ws/install/my_robot_ai_identification:/home/simulations/ros2_sims_ws/install/rclrs_tests:/home/simulations/ros2_sims_ws/install/examples_rclrs_minimal_client_service:/home/simulations/ros2_sims_ws/install/sensor_msgs_py:/home/simulations/ros2_sims_ws/install/examples_rclrs_minimal_pub_sub:/home/simulations/ros2_sims_ws/install/examples_rclrs_message_demo:/home/simulations/ros2_sims_ws/install/rclrs:/home/simulations/ros2_sims_ws/install/rosidl_runtime_rs:/opt/ros/humble _=/usr/bin/env /usr/bin/cmake --build /home/user/ROS2_UR_manipulation_ws/build/robotnik_sensors -- -j8 -l8
+[8.912s] Invoked command in '/home/user/ROS2_UR_manipulation_ws/build/robotnik_sensors' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/user/ROS2_rUBot_tutorial_ws/install/ros2_tutorial:/home/user/ROS2_rUBot_tutorial_ws/install/ros2_move_turtle:/home/user/ROS2_rUBot_mecanum_ws/install/my_robot_driver:/home/user/ROS2_rUBot_mecanum_ws/install/my_robot_nav_control:/home/user/ROS2_rUBot_mecanum_ws/install/my_robot_control:/home/user/ROS2_rUBot_mecanum_ws/install/my_robot_ai_identification:/home/simulations/ros2_sims_ws/install/rclrs_tests:/home/simulations/ros2_sims_ws/install/examples_rclrs_minimal_client_service:/home/simulations/ros2_sims_ws/install/sensor_msgs_py:/home/simulations/ros2_sims_ws/install/examples_rclrs_minimal_pub_sub:/home/simulations/ros2_sims_ws/install/examples_rclrs_message_demo:/home/simulations/ros2_sims_ws/install/rclrs:/home/simulations/ros2_sims_ws/install/rosidl_runtime_rs:/opt/ros/humble _=/usr/bin/env /usr/bin/cmake --build /home/user/ROS2_UR_manipulation_ws/build/robotnik_sensors -- -j8 -l8
+[8.994s] Invoking command in '/home/user/ROS2_UR_manipulation_ws/build/robotnik_sensors': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/user/ROS2_rUBot_tutorial_ws/install/ros2_tutorial:/home/user/ROS2_rUBot_tutorial_ws/install/ros2_move_turtle:/home/user/ROS2_rUBot_mecanum_ws/install/my_robot_driver:/home/user/ROS2_rUBot_mecanum_ws/install/my_robot_nav_control:/home/user/ROS2_rUBot_mecanum_ws/install/my_robot_control:/home/user/ROS2_rUBot_mecanum_ws/install/my_robot_ai_identification:/home/simulations/ros2_sims_ws/install/rclrs_tests:/home/simulations/ros2_sims_ws/install/examples_rclrs_minimal_client_service:/home/simulations/ros2_sims_ws/install/sensor_msgs_py:/home/simulations/ros2_sims_ws/install/examples_rclrs_minimal_pub_sub:/home/simulations/ros2_sims_ws/install/examples_rclrs_message_demo:/home/simulations/ros2_sims_ws/install/rclrs:/home/simulations/ros2_sims_ws/install/rosidl_runtime_rs:/opt/ros/humble _=/usr/bin/env /usr/bin/cmake --install /home/user/ROS2_UR_manipulation_ws/build/robotnik_sensors
+[9.005s] -- Install configuration: ""
+[9.005s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/ament_index/resource_index/package_run_dependencies/robotnik_sensors
+[9.005s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/ament_index/resource_index/parent_prefix_path/robotnik_sensors
+[9.006s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors/environment/ament_prefix_path.sh
+[9.006s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors/environment/ament_prefix_path.dsv
+[9.006s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors/environment/path.sh
+[9.006s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors/environment/path.dsv
+[9.007s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors/local_setup.bash
+[9.007s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors/local_setup.sh
+[9.007s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors/local_setup.zsh
+[9.007s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors/local_setup.dsv
+[9.007s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors/package.dsv
+[9.008s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/ament_index/resource_index/packages/robotnik_sensors
+[9.008s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors/cmake/robotnik_sensorsConfig.cmake
+[9.008s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors/cmake/robotnik_sensorsConfig-version.cmake
+[9.008s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors/package.xml
+[9.008s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//meshes
+[9.009s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//meshes/kinectv2.dae
+[9.009s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//meshes/sick_outdoorscan3.stl
+[9.015s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//meshes/orbbec_astra.stl
+[9.015s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//meshes/intel_d435_color.dae
+[9.106s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//meshes/asus_xtion_pro_live.dae
+[9.107s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//meshes/axis_q8641_n2-1.STL
+[9.107s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//meshes/kinect.jpg
+[9.107s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//meshes/sick_tim571.dae
+[9.108s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//meshes/orbbec_astra_embedded_s.stl
+[9.114s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//meshes/antenna_3GO16.stl
+[9.114s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//meshes/zedm.stl
+[9.114s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//meshes/sick_mls.stl
+[9.116s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//meshes/yujin_yrl.stl
+[9.138s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//meshes/axis_q8641_n1-1.STL
+[9.138s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//meshes/antenna_ANN_MB.stl
+[9.139s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//meshes/sick_s300.stl
+[9.139s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//meshes/asus_xtion_pro_live.png
+[9.139s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//meshes/sick_s300.png
+[9.140s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//meshes/sick_tim551.dae
+[9.140s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//meshes/zed.stl
+[9.140s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//meshes/hokuyo.png
+[9.140s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//meshes/viper.dae
+[9.148s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//meshes/rs_bpearl.stl
+[9.155s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//meshes/intel_d435.png
+[9.155s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//meshes/kinect.dae
+[9.156s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//meshes/orbbec_astra_embedded_s.dae
+[9.188s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//meshes/sick_tim551.stl
+[9.188s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//meshes/sick_tim571.stl
+[9.188s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//meshes/axis_p5512.dae
+[9.189s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//meshes/hokuyo_utm_30lx.dae
+[9.189s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//meshes/pointgrey_bumblebee2.dae
+[9.189s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//meshes/hokuyo3d.dae
+[9.189s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//meshes/axis_p5514.dae
+[9.189s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//meshes/rplidar_a2.stl
+[9.192s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//meshes/ueye_cp_gige.stl
+[9.192s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//meshes/hokuyo_ust_20lx.dae
+[9.192s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//meshes/axis_m5525.dae
+[9.193s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//meshes/benewake_ce30d.stl
+[9.194s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//meshes/hokuyo3d.jpg
+[9.194s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//meshes/viper.stl
+[9.197s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//meshes/intel_r430.stl
+[9.197s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//meshes/teraranger_tr_duo.stl
+[9.198s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//meshes/sick_microscan3.stl
+[9.203s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//meshes/hokuyo_urg_04lx.dae
+[9.203s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//meshes/intel_d435.dae
+[9.226s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//meshes/kinectv2_nobase.dae
+[9.226s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//meshes/rplidar.dae
+[9.227s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//meshes/hokuyo3d.stl
+[9.227s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//meshes/axis_p5514.stl
+[9.227s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//meshes/zed2.stl
+[9.227s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//meshes/teraranger_tr_duo.dae
+[9.228s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//meshes/rplidar_a2.dae
+[9.230s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//meshes/rslidar.dae
+[9.231s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//meshes/hokuyo_ust_10lx.dae
+[9.232s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//meshes/sick_outdoorscan3.dae
+[9.241s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//meshes/lidar_mast.STL
+[9.241s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//meshes/hokuyo_urg_04lx.stl
+[9.242s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//meshes/ueye_cp_gige.dae
+[9.242s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//meshes/rs_bpearl.dae
+[9.251s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//meshes/axis_m5013.stl
+[9.251s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//meshes/sick_s300_color.dae
+[9.251s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//meshes/axis_m5013.dae
+[9.251s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//meshes/orbbec_astra.dae
+[9.252s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//meshes/benewake_ce30d.dae
+[9.252s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//meshes/rslidar.stl
+[9.253s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//meshes/sick_microscan3.dae
+[9.263s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//meshes/sick_s3000.stl
+[9.263s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//meshes/ydlidar_4f.dae
+[9.293s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//meshes/sick_s300.dae
+[9.293s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//meshes/velodyne_vlp16.stl
+[9.294s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//meshes/intel_d435.stl
+[9.313s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//meshes/fotonic_e.stl
+[9.313s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//meshes/intel_r430.dae
+[9.314s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//meshes/axis_m5525.stl
+[9.314s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//meshes/camera_axis_q8641.STL
+[9.314s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//meshes/kinect.tga
+[9.314s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//meshes/hokuyo_utm_30lx.stl
+[9.314s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//meshes/sick_s3000.dae
+[9.314s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//meshes/rslidar_mems.stl
+[9.315s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//meshes/vectornav_vn100.stl
+[9.316s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//meshes/kinectv2.stl
+[9.316s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//meshes/axis_p5512.stl
+[9.316s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//meshes/antenna_3GO16.dae
+[9.317s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//meshes/ouster1.STL
+[9.317s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//meshes/velodyne_vlp16.dae
+[9.318s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//meshes/kinectv2_nobase.stl
+[9.318s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//meshes/benewake_ce30.stl
+[9.319s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//meshes/sick_nanoscan3.stl
+[9.319s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//meshes/ydlidar_4f.png
+[9.319s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//urdf
+[9.319s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//urdf/sick_microscan3.urdf.xacro
+[9.319s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//urdf/pointgrey_bumblebee2.urdf.xacro
+[9.319s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//urdf/vectornav.urdf.xacro
+[9.319s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//urdf/roboteq_mgs.urdf.xacro
+[9.320s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//urdf/intel_d435.urdf.xacro
+[9.320s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//urdf/kinect.urdf.xacro
+[9.320s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//urdf/ublox.urdf.xacro
+[9.320s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//urdf/velodyne_vlp16.urdf.xacro
+[9.320s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//urdf/intel_r430.urdf.xacro
+[9.320s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//urdf/teraranger_tr_duo.urdf.xacro
+[9.320s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//urdf/gps.urdf.xacro
+[9.321s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//urdf/rubedos_viper.urdf.xacro
+[9.321s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//urdf/rslidar.urdf.xacro
+[9.321s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//urdf/rplidar_a2.urdf.xacro
+[9.321s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//urdf/sick_tim551.urdf.xacro
+[9.321s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//urdf/rslidar_mems.urdf.xacro
+[9.321s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//urdf/all_sensors.urdf.xacro
+[9.321s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//urdf/fotonic_e.urdf.xacro
+[9.322s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//urdf/axis.urdf.xacro
+[9.322s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//urdf/kinectv2.urdf.xacro
+[9.322s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//urdf/orbbec_astra.urdf.xacro
+[9.322s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//urdf/sick_s300.urdf.xacro
+[9.322s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//urdf/embedded_s.urdf.xacro
+[9.323s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//urdf/axis_q8641.urdf.xacro
+[9.323s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//urdf/sick_s3000.urdf.xacro
+[9.323s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//urdf/pantilt.urdf.xacro
+[9.323s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//urdf/gps_with_mast.urdf.xacro
+[9.323s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//urdf/yujin_yrl.urdf.xacro
+[9.323s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//urdf/imu_hector_plugin.urdf.xacro
+[9.323s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//urdf/utils
+[9.323s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//urdf/utils/inertia.urdf.xacro
+[9.324s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//urdf/rplidar.urdf.xacro
+[9.324s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//urdf/sick_outdoorscan3.urdf.xacro
+[9.324s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//urdf/flir_ax8.urdf.xacro
+[9.324s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//urdf/imu.urdf.xacro
+[9.324s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//urdf/sick_nanoscan3.urdf.xacro
+[9.324s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//urdf/benewake_ce30d.urdf.xacro
+[9.324s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//urdf/asus_xtion_pro.urdf.xacro
+[9.324s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//urdf/ouster1.urdf.xacro
+[9.324s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//urdf/ueye_cp_gige.urdf.xacro
+[9.325s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//urdf/zed2.urdf.xacro
+[9.325s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//urdf/hokuyo_ust10lx.urdf.xacro
+[9.325s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//urdf/hokuyo3d.urdf.xacro
+[9.325s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//urdf/ydlidar_4f.urdf.xacro
+[9.325s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//urdf/hokuyo_utm30lx.urdf.xacro
+[9.325s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//urdf/lidar_mast.urdf.xacro
+[9.325s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//urdf/axis_m5525.urdf.xacro
+[9.325s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//urdf/benewake_ce30.urdf.xacro
+[9.326s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//urdf/hokuyo_urg04lx.urdf.xacro
+[9.326s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//urdf/azure_kinect.urdf.xacro
+[9.326s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//urdf/zed.urdf.xacro
+[9.326s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//urdf/axis_m5013.urdf.xacro
+[9.326s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//urdf/hokuyo_ust20lx.urdf.xacro
+[9.326s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//urdf/sick_tim571.urdf.xacro
+[9.326s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//urdf/sick_mls.urdf.xacro
+[9.326s] -- Installing: /home/user/ROS2_UR_manipulation_ws/install/robotnik_sensors/share/robotnik_sensors//urdf/rs_bpearl.urdf.xacro
+[9.329s] Invoked command in '/home/user/ROS2_UR_manipulation_ws/build/robotnik_sensors' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/user/ROS2_rUBot_tutorial_ws/install/ros2_tutorial:/home/user/ROS2_rUBot_tutorial_ws/install/ros2_move_turtle:/home/user/ROS2_rUBot_mecanum_ws/install/my_robot_driver:/home/user/ROS2_rUBot_mecanum_ws/install/my_robot_nav_control:/home/user/ROS2_rUBot_mecanum_ws/install/my_robot_control:/home/user/ROS2_rUBot_mecanum_ws/install/my_robot_ai_identification:/home/simulations/ros2_sims_ws/install/rclrs_tests:/home/simulations/ros2_sims_ws/install/examples_rclrs_minimal_client_service:/home/simulations/ros2_sims_ws/install/sensor_msgs_py:/home/simulations/ros2_sims_ws/install/examples_rclrs_minimal_pub_sub:/home/simulations/ros2_sims_ws/install/examples_rclrs_message_demo:/home/simulations/ros2_sims_ws/install/rclrs:/home/simulations/ros2_sims_ws/install/rosidl_runtime_rs:/opt/ros/humble _=/usr/bin/env /usr/bin/cmake --install /home/user/ROS2_UR_manipulation_ws/build/robotnik_sensors

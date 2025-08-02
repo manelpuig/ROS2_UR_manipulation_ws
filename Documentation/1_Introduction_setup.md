@@ -60,19 +60,20 @@ To work on the project (during lab sessions or for homework), each student has t
   sudo apt install python3-pip
   pip3 list | grep setuptools
   pip3 install setuptools==58.2.0
+  unset COLCON_PREFIX_PATH
+  unset AMENT_PREFIX_PATH
+  unset CMAKE_PREFIX_PATH
+  rm -rf build/ install/ log/
+  source /opt/ros/humble/setup.bash
+  colcon build --cmake-clean-cache
+  source install/setup.bash
   ````
-- If the compilation process returns wardings on PREFIX_PATH:
-We will need to install the following packages:
-````shell
-unset COLCON_PREFIX_PATH
-unset AMENT_PREFIX_PATH
-unset CMAKE_PREFIX_PATH
-rm -rf build/ install/ log/
-colcon build
-source install/setup.bash
-````
 We have now our workspace ready with the gripper only used for simulation purposes.
 
+Let's start by launching the robot arm UR3
+````shell
+ros2 launch ur_description view_ur.launch.py ur_type:=ur3
+````
 
 ## **3. Update and syncronize the repository project**
 

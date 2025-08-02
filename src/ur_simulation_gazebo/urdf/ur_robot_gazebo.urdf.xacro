@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro" name="ur">
+  <xacro:arg name="ur_type" default="ur5e"/>
+  <xacro:arg name="prefix" default=""/>
+  <xacro:arg name="use_sim" default="true"/>
+  <xacro:arg name="use_fake_hardware" default="true"/>
+
+  <xacro:include filename="$(find ur_description)/urdf/ur.urdf.xacro"/>
+  <xacro:ur_robot
+    ur_type="${ur_type}"
+    name="ur"
+    prefix="${prefix}"
+    use_fake_hardware="${use_fake_hardware}"
+    use_sim="${use_sim}" />
+
+  <gazebo>
+    <plugin name="gazebo_ros_control" filename="libgazebo_ros2_control.so"/>
+  </gazebo>
+</robot>

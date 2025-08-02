@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>ur_simulation_gazebo</name>
+  <version>0.0.1</version>
+  <description>Gazebo simulation for UR robots in ROS 2</description>
+
+  <maintainer email="manel@example.com">Manel</maintainer>
+  <license>BSD</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+  <exec_depend>gazebo_ros</exec_depend>
+  <exec_depend>gazebo_ros2_control</exec_depend>
+  <exec_depend>xacro</exec_depend>
+  <exec_depend>ur_description</exec_depend>
+
+</package>

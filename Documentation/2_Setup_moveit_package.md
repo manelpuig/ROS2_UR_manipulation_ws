@@ -20,7 +20,14 @@ First of all, we need to install moveit2 packages:
  ````
 The next thing you'll need to do is load your robot file. 
 - Click on the Create New MoveIt Configuration Package button.
-- Now, click the Browse button. Select the URDF file named `ur_moveit.urdf.xacro`. Great! So, you've loaded the xacro file of your robot to the MoveIt Setup Assistant. Now, let's start configuring some things.
+- first, create a UR model from xacro file:
+    ````shell
+    cd src/Universal_Robots_ROS2_Description/urdf/
+    xacro ur.urdf.xacro ur_type:=ur3e name:=ur3e tf_prefix:="" force_abs_paths:=false safety_limits:=false > ur3e_moveit.urdf
+    ````
+- Now, click the Browse button. Select the URDF file named `ur3e_moveit.urdf`. Great! So, you've loaded the xacro file of your robot to the MoveIt Setup Assistant. 
+
+Now, let's start configuring some things.
 - Select `Self-Collisions`:
     - Set the Sampling Density value to the maximum
     - choose any value between 95% to 99% for the Min. collisions for "always"-colliding pairs
@@ -52,7 +59,7 @@ The next thing you'll need to do is load your robot file.
 - go to the "Configuration Files" tab:
     - click the "Browse" button. 
     - Navigate to the ros2_ws/src directory, 
-    - create a new directory, and name it my_moveit_config. "Choose" the directory you've just created.
+    - create a new directory, and name it ur_moveit_config. "Choose" the directory you've just created.
     - click the Generate Package button.
 
 - Finally, the last step will be to build your workspace:

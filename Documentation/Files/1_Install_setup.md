@@ -28,6 +28,7 @@
     Remove-Item -Recurse -Force .\src\Universal_Robots_ROS2_Gazebo_Simulation\.git
     git rm --cached -r src/Universal_Robots_ROS2_Description
     git rm --cached -r src/Universal_Robots_ROS2_Gazebo_Simulation
+    rosdep update && rosdep install --ignore-src --from-paths . -y
     ````
 - Install dependencies:
     ````shell

@@ -1,5 +1,15 @@
 # Motion Planning
 
+- Running Gazebo-rviz Simulation
+```
+ros2 launch ur_simulation_gazebo ur_sim_control.launch.py ur_type:=ur3
+```
+
+- Example using MoveIt with simulated robot:
+```
+ros2 launch ur_simulation_gazebo ur_sim_moveit.launch.py
+```
+
 Let's start by launching the robot arm UR3
 ````shell
 ros2 launch ur_description view_ur.launch.py ur_type:=ur3

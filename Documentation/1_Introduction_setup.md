@@ -18,6 +18,57 @@ Webbiography:
 - https://github.com/UniversalRobots/Universal_Robots_ROS2_Description
 - https://github.com/UniversalRobots/Universal_Robots_ROS2_GZ_Simulation
 
+## 1. Install needed packages:
+
+- be sure you have:
+  ````shell
+  sudo apt update && sudo apt install -y \
+    build-essential \
+    python3-colcon-common-extensions \
+    python3-vcstool \
+    git \
+    ros-humble-xacro \
+    ros-humble-joint-state-publisher-gui \
+    ros-humble-robot-state-publisher \
+    ros-humble-gazebo-ros2-control \
+    ros-humble-ros2-control \
+    ros-humble-ros2-controllers \
+    ros-humble-joint-trajectory-controller
+  ````
+- create a ur_simulation.repos file in ws:
+    ````xml
+    repositories:
+  Universal_Robots_ROS2_Description:
+    type: git
+    url: https://github.com/UniversalRobots/Universal_Robots_ROS2_Description.git
+    version: humble
+
+  Universal_Robots_ROS2_Gazebo_Simulation:
+    type: git
+    url: https://github.com/UniversalRobots/Universal_Robots_ROS2_Gazebo_Simulation.git
+    version: humble
+
+  robotiq:
+    type: git
+    url: https://github.com/ros-industrial/robotiq.git
+    version: ros2
+
+  robotnik_sensors:
+    type: git
+    url: https://github.com/RobotnikAutomation/robotnik_sensors.git
+    version: humble
+```` 
+- execute to clone repositories:
+````shell
+cd ~/ROS2_UR_manipulation_ws
+vcs import src < ur_simulation.repos
+````
+- Install dependencies:
+````shell
+cd ~/ROS2_UR_manipulation_ws
+rosdep update
+rosdep install --from-paths src --ignore-src -r -y
+````
 ## 1. Set up a UR project in virtual environment for simulation
 
 For **simulation** we will use TheConstruct interface. When working in Laboratory groups, we suggest you:
@@ -73,6 +124,10 @@ We have now our workspace ready with the gripper only used for simulation purpos
 Let's start by launching the robot arm UR3
 ````shell
 ros2 launch ur_description view_ur.launch.py ur_type:=ur3
+````
+Leats start gazebo:
+````shell
+ros2 launch ur_simulation_gazebo ur_sim_control.launch.py
 ````
 
 ## **3. Update and syncronize the repository project**

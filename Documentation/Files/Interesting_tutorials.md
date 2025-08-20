@@ -12,3 +12,6 @@
 
     - Youtube tutorial channel:https://www.youtube.com/@learn-robotics-with-ros
         - Gazebo: https://www.youtube.com/watch?v=qnuwTOB4DKw
+        - github link: https://github.com/LearnRoboticsWROS?tab=repositories
+            - https://github.com/LearnRoboticsWROS/ur_yt_sim
+            - https://github.com/LearnRoboticsWROS/ur5_sim_test/tree/main

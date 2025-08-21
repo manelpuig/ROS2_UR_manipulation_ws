@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>my_ur_bringup</name>
+  <version>0.0.1</version>
+  <description>Bringup for custom UR5e using Gazebo Classic</description>
+  <maintainer email="manel.puig@ub.edu">user</maintainer>
+  <license>Apache-2.0</license>
+
+  <!-- Build tool for ament_python packages -->
+  <buildtool_depend>ament_python</buildtool_depend>
+
+  <!-- Runtime deps (launch + tools) -->
+  <exec_depend>launch</exec_depend>
+  <exec_depend>launch_ros</exec_depend>
+  <exec_depend>rclpy</exec_depend>
+  <exec_depend>xacro</exec_depend>
+  <exec_depend>robot_state_publisher</exec_depend>
+  <exec_depend>joint_state_publisher</exec_depend>
+  <exec_depend>joint_state_publisher_gui</exec_depend>
+
+  <!-- UR stack -->
+  <exec_depend>ur_description</exec_depend>
+  <exec_depend>ur_robot_driver</exec_depend>
+  <!-- MoveIt config només si tens un launch amb MoveIt; si no, el pots treure -->
+  <exec_depend>ur_moveit_config</exec_depend>
+
+  <!-- Gazebo Classic + control -->
+  <exec_depend>gazebo_ros</exec_depend>
+  <!-- opcional: 'gazebo_ros_pkgs' instal·la el conjunt, però amb 'gazebo_ros' n'hi ha prou -->
+  <!-- <exec_depend>gazebo_ros_pkgs</exec_depend> -->
+  <exec_depend>controller_manager</exec_depend>
+  <exec_depend>ros2_control</exec_depend>
+  <exec_depend>ros2_controllers</exec_depend>
+  <exec_depend>ur_simulation_gazebo</exec_depend>
+
+  <!-- Tests (opcional) -->
+  <test_depend>pytest</test_depend>
+  <test_depend>ament_pytest</test_depend>
+  <test_depend>ament_copyright</test_depend>
+  <test_depend>ament_flake8</test_depend>
+  <test_depend>ament_pep257</test_depend>
+
+  <export>
+    <build_type>ament_python</build_type>
+  </export>
+</package>

@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<robot name="ur5e_custom" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- Inclou el macro de UR -->
+  <xacro:include filename="$(find ur_description)/urdf/ur_macro.xacro"/>
+
+  <!-- Instància del macro 'ur_robot' -->
+  <xacro:ur_robot
+      name="ur"
+      tf_prefix=""
+      parent="world">
+
+    <!-- Posa el robot a (0,0,0); canvia si vols -->
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+
+    <!-- YAMLs que defineixen el model UR5e -->
+    <xacro:arg name="joint_limits_parameters_file"    value="$(find ur_description)/config/ur5e/joint_limits.yaml"/>
+    <xacro:arg name="kinematics_parameters_file"      value="$(find ur_description)/config/ur5e/default_kinematics.yaml"/>
+    <xacro:arg name="physical_parameters_file"        value="$(find ur_description)/config/ur5e/physical_parameters.yaml"/>
+    <xacro:arg name="visual_parameters_file"          value="$(find ur_description)/config/ur5e/visual_parameters.yaml"/>
+
+    <!-- ros2_control / simulació Gazebo Classic -->
+    <xacro:arg name="generate_ros2_control_tag" value="true"/>
+    <xacro:arg name="sim_gazebo"                value="true"/>
+    <xacro:arg name="headless_mode"             value="true"/>
+
+    <!-- Paràmetres extra (opc.) -->
+    <xacro:arg name="safety_limits"       value="true"/>
+    <xacro:arg name="safety_pos_margin"   value="0.15"/>
+    <xacro:arg name="safety_k_position"   value="20"/>
+
+    <!-- Posicions inicials i controladors -->
+    <xacro:arg name="initial_positions"
+               value="${dict(shoulder_pan_joint=0.0,shoulder_lift_joint=-1.57,elbow_joint=0.0,wrist_1_joint=-1.57,wrist_2_joint=0.0,wrist_3_joint=0.0)}"/>
+
+    <!-- Si el teu launch/stack llegeix aquests fitxers: -->
+    <!-- (no formen part del macro, però sovint és útil deixar-los aquí si els consumeix el launch oficial) -->
+    <!-- Res a canviar aquí si ja els passes pel launch -->
+  </xacro:ur_robot>
+</robot>

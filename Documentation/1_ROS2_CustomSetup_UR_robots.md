@@ -1,6 +1,22 @@
 # Setup custom UR repository
 
+Important webgraphy:
+- Youtube tutorial channel:https://www.youtube.com/@learn-robotics-with-ros
+        - Gazebo: https://www.youtube.com/watch?v=qnuwTOB4DKw
+        - moveit2: https://www.youtube.com/watch?v=9xbw4IDcsAU&list=PLJOHOcnvyOr31ZYoB4JDpUWWzRfpJnfqn
+        - github link: https://github.com/LearnRoboticsWROS?tab=repositories
+            - https://github.com/LearnRoboticsWROS/ur_yt_sim
+            - https://github.com/LearnRoboticsWROS/ur5_sim_test/tree/main
 
+You have to prepare the repository with:
+````shell
+sudo mkdir -p /usr/share/keyrings
+sudo curl -fsSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key \
+  -o /usr/share/keyrings/ros-archive-keyring.gpg
+sudo rm /etc/apt/sources.list.d/ros2-latest.list
+sudo apt update
+sudo apt install dialog
+````
 
 ## 1. Install official packages (binary)
 Universal Robots + control stack
@@ -17,13 +33,16 @@ sudo apt install -y ros-humble-rviz2 ros-humble-xacro
 Gazebo Classic (for Humble)
 ````shell
 sudo apt install -y ros-humble-gazebo-ros-pkgs ros-humble-gazebo-plugins ros-humble-gazebo-ros2-control
+git clone -b humble https://github.com/UniversalRobots/Universal_Robots_ROS2_Gazebo_Simulation.git
+mv Universal_Robots_ROS2_Gazebo_Simulation/ur_simulation_gazebo my_ur_simulation_gazebo
+rm -rf Universal_Robots_ROS2_Gazebo_Simulation
 ````
-MoveIt 2 (for planning)
+MoveIt2 (for planning)
 ````shell
 sudo apt install -y ros-humble-moveit
 ````
 
->With the above binary installs, you do not need to clone any Universal Robots repositories.
+>With the above binary installs, you do not need to clone any Universal Robots repository (https://github.com/UniversalRobots/Universal_Robots_ROS2_Description/tree/humble).
 
 ## 2. Create your workspace and packages
 
@@ -32,7 +51,7 @@ Create custom packages on src folder:
 cd ~/ROS2_UR_manipulation_ws/src
 
 # Your bringup package (Python, for launchers/configs)
-ros2 pkg create my_ur5e_bringup --build-type ament_python \
+ros2 pkg create my_ur_bringup --build-type ament_python \
   --dependencies rclpy launch launch_ros xacro robot_state_publisher controller_manager
 
 # Your MoveIt 2 config will be created with the MoveIt Setup Assistant (next section)
@@ -40,11 +59,52 @@ ros2 pkg create my_ur5e_bringup --build-type ament_python \
 
 Build once (even if empty) to check the workspace is healthy:
 ````shell
+unset COLCON_PREFIX_PATH AMENT_PREFIX_PATH CMAKE_PREFIX_PATH
+source /opt/ros/humble/setup.bash
 cd ~/ROS2_UR_manipulation_ws
 colcon build --symlink-install
-source install/setup.bash
 ````
-## 3. Generate your MoveIt 2 configuration
+If you have warnings about "test_require", you can avoid them with:
+- In `setup.py` comment the line `tests_require=['pytest'],`
+- In `package.xml` add line `<test_depend>pytest</test_depend>`
+- Recompile with:
+    ````shell
+    cd ~/ROS2_UR_manipulation_ws
+    rm -rf build/ install/ log/
+    colcon build --symlink-install
+    source install/setup.bash
+    ````
+
+Once the package compiles properly, add the needed folders: `launch`, `config`, `rviz`, `meshes` and `urdf`
+
+You have to add these folders to `setup.py` as ususal
+
+### Custom UR5e definition
+
+We want to use the official UR repository ([UR_Gazeo](https://github.com/UniversalRobots/Universal_Robots_ROS2_Gazebo_Simulation)), we will have to:
+- Add dependencies on `package.xml`
+- To customize the UR5e model with some sensors (i.e. camera) I add a `ur5e_custom.xacro` to urdf folder with:
+    - same structure as the original one in ur_description
+    - some modifications adding sensors (camera, gripper, etc)
+- Add in `config` folder: 
+    - `ur_controllers.yaml` (from official ur_simulation_gazebo/config folder)
+    - `initial_positions.yaml` (from official Universal_Robots_ROS2_Description/config folder)
+- Add a `ur5e_custom_sim_bringup.launch.py` launch file:
+    - same structure as the original ones
+    - add some parameters in function of the used model
+- launch the ur5e custom robot in rviz and gazebo:
+    ````shell
+    ros2 launch my_ur_bringup spawn_ur5_camera.launch.py
+    ````
+- Launch the official simple models:
+    ````shell
+    ros2 launch ur_simulation_gazebo ur_sim_control.launch.py
+    ros2 launch ur_simulation_gazebo ur_sim_moveit.launch.py
+    ````
+
+for gripper you need information from: https://github.com/KevinGalassi/Robotiq-2f-85/tree/main
+
+## 3. Generate your MoveIt2 configuration
 
 Create my_ur5e_moveit_config with MoveIt Setup Assistant (MSA):
 ````shell

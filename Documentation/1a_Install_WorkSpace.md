@@ -1,15 +1,14 @@
-# UR5e + Gazebo Classic + MoveIt2 (ROS 2 Humble) – Setup Instructions
+# Setup Instructions
 
-These are the minimal and clean steps to install and run the UR5e simulation using
-ROS 2 Humble, Gazebo Classic, and MoveIt2 on Ubuntu 22.04.
+These are the minimal and clean steps to install and run the UR5e simulation using ROS 2 Humble, Gazebo Classic, and MoveIt2 on Ubuntu 22.04.
 
 ---
 
 ## 1. Create a clean workspace
 
 ```bash
-mkdir -p ~/ur5e_ws/src
-cd ~/ur5e_ws
+mkdir -p ~/ROS2_UR_manipulation_ws/src
+cd ~/ROS2_UR_manipulation_ws
 ```
 
 ---
@@ -44,7 +43,9 @@ sudo apt install -y \
   gazebo \
   ros-humble-gazebo-ros \
   ros-humble-gazebo-ros-pkgs \
-  ros-humble-gazebo-ros-control
+  ros-humble-ros2-control \
+  ros-humble-ros2-controllers \
+  ros-humble-gazebo-ros2-control
 ```
 
 ---
@@ -54,19 +55,16 @@ sudo apt install -y \
 ```bash
 cd ~/ROS2_UR_manipulation_ws/src
 git clone https://github.com/UniversalRobots/Universal_Robots_ROS2_Gazebo_Simulation.git
-```
-
-(Optional) UR ROS2 Driver from source if you need real robot support:
-
-```bash
 git clone https://github.com/UniversalRobots/Universal_Robots_ROS2_Driver.git
+git clone https://github.com/UniversalRobots/Universal_Robots_ROS2_Tutorials/.git
 ```
 You have to delete the .git folder:
 
 ```bash
 rm -rf Universal_Robots_ROS2_Gazebo_Simulation/.git
 rm -rf Universal_Robots_ROS2_Gazebo_Simulation/.git
-rm -rf Universal_Robots_ROS2_Tutorials/.git 
+rm -rf Universal_Robots_ROS2_Tutorials/.git
+```
 ---
 
 ## 5. Install dependencies and build
@@ -78,11 +76,12 @@ rosdep install --from-paths src --ignore-src -y
 colcon build --symlink-install
 ```
 
-Add workspace to your shell:
+Verify the `.bashrc` file contains::
 
 ```bash
-echo "source ~/ur5e_ws/install/setup.bash" >> ~/.bashrc
-source ~/.bashrc
+source /opt/ros/humble/setup.bash
+source ~/ROS2_UR_manipulation_ws/install/setup.bash
+cd ROS2_UR_manipulation_ws
 ```
 
 ---

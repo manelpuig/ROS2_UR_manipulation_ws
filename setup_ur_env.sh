@@ -29,6 +29,12 @@ echo "🔧 Installing ROS2 simulation & MoveIt dependencies..."
 sudo apt update -y || true
 
 sudo apt install -y \
+  ros-humble-ur \
+  ros-humble-ur-description \
+  ros-humble-ur-msgs \
+  ros-humble-ur-robot-driver \
+  ros-humble-ur-bringup \
+  ros-humble-ur-moveit-config \
   ros-humble-moveit \
   ros-humble-moveit-ros \
   ros-humble-moveit-planners-ompl \
@@ -36,10 +42,12 @@ sudo apt install -y \
   ros-humble-ros2-controllers \
   ros-humble-controller-manager \
   ros-humble-controller-interface \
+  gazebo \
   ros-humble-gazebo-ros \
   ros-humble-gazebo-ros-pkgs \
+  ros-humble-ros2-control \
+  ros-humble-ros2-controllers \
   ros-humble-gazebo-ros2-control || true
-
 
 # =======================================================
 # 3. Install dependencies for UR repositories you cloned
@@ -48,7 +56,6 @@ echo "🔧 Installing rosdep dependencies..."
 cd ~/ROS2_UR_manipulation_ws
 rosdep update
 rosdep install --from-paths src --ignore-src -y || true
-
 
 # =======================================================
 # 4. Build the workspace

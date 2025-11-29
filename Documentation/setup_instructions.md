@@ -52,8 +52,8 @@ sudo apt install -y \
 ## 4. Clone the UR simulation package (source)
 
 ```bash
-cd ~/ur5e_ws/src
-git clone -b humble https://github.com/ros-industrial/ur_simulation.git
+cd ~/ROS2_UR_manipulation_ws/src
+git clone https://github.com/UniversalRobots/Universal_Robots_ROS2_Gazebo_Simulation.git
 ```
 
 (Optional) UR ROS2 Driver from source if you need real robot support:
@@ -61,13 +61,18 @@ git clone -b humble https://github.com/ros-industrial/ur_simulation.git
 ```bash
 git clone https://github.com/UniversalRobots/Universal_Robots_ROS2_Driver.git
 ```
+You have to delete the .git folder:
 
+```bash
+rm -rf Universal_Robots_ROS2_Gazebo_Simulation/.git
+rm -rf Universal_Robots_ROS2_Gazebo_Simulation/.git
+rm -rf Universal_Robots_ROS2_Tutorials/.git 
 ---
 
 ## 5. Install dependencies and build
 
 ```bash
-cd ~/ur5e_ws
+cd ~/ROS2_UR_manipulation_ws
 rosdep update
 rosdep install --from-paths src --ignore-src -y
 colcon build --symlink-install

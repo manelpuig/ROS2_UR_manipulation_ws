@@ -55,13 +55,11 @@ sudo apt install -y \
 ```bash
 cd ~/ROS2_UR_manipulation_ws/src
 git clone https://github.com/UniversalRobots/Universal_Robots_ROS2_Gazebo_Simulation.git
-git clone https://github.com/UniversalRobots/Universal_Robots_ROS2_Driver.git
 git clone https://github.com/UniversalRobots/Universal_Robots_ROS2_Tutorials/.git
 ```
 You have to delete the .git folder:
 
 ```bash
-rm -rf Universal_Robots_ROS2_Gazebo_Simulation/.git
 rm -rf Universal_Robots_ROS2_Gazebo_Simulation/.git
 rm -rf Universal_Robots_ROS2_Tutorials/.git
 ```
@@ -86,42 +84,26 @@ cd ROS2_UR_manipulation_ws
 
 ---
 
-## 6. Launch the UR5e Gazebo simulation
+## 6. Launch the UR5e bringup
 
+Using Gazebo for simulation:
 ```bash
 ros2 launch ur_simulation_gazebo ur_simulation.launch.py ur_type:=ur5e
 ```
-
----
-
-## 7. Launch the UR5e ROS 2 driver (fake hardware)
-
+Or launching the UR5e ROS 2 driver (fake hardware):
 ```bash
-ros2 launch ur_bringup ur_robot.launch.py \
-  ur_type:=ur5e \
-  use_fake_hardware:=true
-```
-
+ros2 launch ur_robot_driver ur_control.launch.py ur_type:=ur5e robot_ip:=1.2.3.4 use_fake_hardware:=true launch_rviz:=false
+````
+> the parameter robot_ip is mandatory but ignored if use_fake_hardware:=true 
 ---
 
-## 8. Launch MoveIt2 for UR5e
+## 7. Launch MoveIt2 for UR5e
 
+Using Gazebo for simulation:
 ```bash
 ros2 launch ur_moveit_config ur_moveit.launch.py ur_type:=ur5e
 ```
-
 ---
-
-## Summary
-
-| Component | Installation |
-|----------|--------------|
-| UR Description | apt |
-| UR Driver | apt |
-| MoveIt2 | apt |
-| Gazebo Classic | apt |
-| UR Simulation | source |
-| Workspace | `~/ur5e_ws` |
 
 This setup provides a stable UR5e simulation environment with ROS 2 Humble and Gazebo Classic.
 

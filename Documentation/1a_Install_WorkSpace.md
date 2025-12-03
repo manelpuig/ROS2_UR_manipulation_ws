@@ -75,7 +75,7 @@ source ~/ROS2_UR_manipulation_ws/install/setup.bash
 cd ROS2_UR_manipulation_ws
 ```
 
-## 4. Launch the UR5e bringup
+## 5. Launch the UR5e bringup
 
 Using Gazebo for simulation:
 ```bash
@@ -88,7 +88,7 @@ ros2 launch ur_robot_driver ur_control.launch.py ur_type:=ur5e robot_ip:=1.2.3.4
 > the parameter robot_ip is mandatory but ignored if use_fake_hardware:=true 
 ---
 
-## 5. Launch MoveIt2 for UR5e
+## 6. Launch MoveIt2 for UR5e
 
 Using Gazebo for simulation:
 ```bash

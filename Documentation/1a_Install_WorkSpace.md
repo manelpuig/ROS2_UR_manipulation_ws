@@ -51,7 +51,7 @@ cd ROS2_UR_manipulation_ws
 
 Using Gazebo for simulation:
 ```bash
-ros2 launch ur_simulation_gazebo ur_sim_control.launch.py ur_type:=ur5e
+ros2 launch ur_simulation_gazebo ur_sim_control.launch.py ur_type:=ur5e use_sim_time:=true
 ```
 Or launching the UR5e ROS 2 driver (fake hardware):
 ```bash
@@ -64,7 +64,7 @@ ros2 launch ur_robot_driver ur_control.launch.py ur_type:=ur5e robot_ip:=1.2.3.4
 
 Using Gazebo for simulation:
 ```bash
-ros2 launch ur_moveit_config ur_moveit.launch.py ur_type:=ur5e
+ros2 launch ur_moveit_config ur_moveit.launch.py ur_type:=ur5e use_sim_time:=true
 ```
 ---
 

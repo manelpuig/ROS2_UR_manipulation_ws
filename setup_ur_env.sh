@@ -53,7 +53,7 @@ sudo apt install -y \
 # 3. Install dependencies for UR repositories you cloned
 # =======================================================
 echo "🔧 Installing rosdep dependencies..."
-cd ~/ROS2_UR_manipulation_ws
+cd ~/Desktop/ROS2_UR_manipulation_ws
 
 # IMPORTANT: run once in your life (outside this script) on a fresh Ubuntu:
 #   sudo rosdep init

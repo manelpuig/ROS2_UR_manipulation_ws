@@ -12,6 +12,7 @@ sudo mkdir -p /etc/apt/keyrings
 # Remove old or broken keys (no problem if they don't exist)
 sudo rm -f /etc/apt/trusted.gpg.d/ros2-archive-keyring.gpg
 sudo rm -f /etc/apt/keyrings/ros2-archive-keyring.gpg
+sudo rm /etc/apt/sources.list.d/ros2.sources
 
 # Install fresh key
 curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key | \

@@ -43,6 +43,23 @@ This will:
 - Install dependencies for UR repositories you cloned
 - Build the workspace
 
+## 4. Install `pymoveit` package
+
+Basic Python interface for MoveIt 2 built on top of ROS 2 actions and services. (https://docs.ros.org/en/humble/p/pymoveit2/index.html
+)
+
+Instructions to install:
+- Clone this repository, install dependencies and build with colcon.
+
+    ```bash
+    # Clone this repository into your favourite ROS 2 workspace
+    git clone https://github.com/AndrejOrsula/pymoveit2.git
+    # Install dependencies
+    rosdep install -y -r -i --rosdistro ${ROS_DISTRO} --from-paths .
+    # Build
+    colcon build --merge-install --symlink-install --cmake-args "-DCMAKE_BUILD_TYPE=Release"
+    ```
+
 Verify the `.bashrc` file contains::
 
 ```bash
@@ -73,17 +90,3 @@ ros2 launch ur_moveit_config ur_moveit.launch.py ur_type:=ur5e use_sim_time:=tru
 ---
 
 This setup provides a stable UR5e simulation environment with ROS 2 Humble and Gazebo Classic.
-
-🔹 1. Universal_Robots_ExternalControl_URCap (per robot real)
-
-Això no és un package ROS2, és una URCap que va al robot, però és clau per treballar amb UR real + ROS2.
-
-Repo: UniversalRobots/Universal_Robots_ExternalControl_URCap (el baixes, el poses al robot des de PolyScope).
-
-Serveix per:
-
-Definir el programa “External Control” al robot.
-
-Deixar que el PC amb ROS2 controli el robot via el driver.
-
-👉 Resum: imprescindible si vols controlar el UR5e real des de ROS2.

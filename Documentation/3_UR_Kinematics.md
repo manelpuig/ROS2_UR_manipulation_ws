@@ -96,6 +96,13 @@ Start MoveIt:
 ```bash
 ros2 launch ur_moveit_config ur_moveit.launch.py ur_type:=ur5e use_sim_time:=true
 ```
+**Improvement**
+
+You can construct a unic launch file for Gazebo and MoveIt (ur5e_sim_moveit.launch.py)
+
+```bash
+ros2 launch ur5e_kinematics_demo ur5e_sim_moveit.launch.py ur_type:=ur5e use_sim_time:=true
+```
 
 Compute FK and move for a desired pose:
 
@@ -108,6 +115,4 @@ ros2 launch ur5e_kinematics_demo ik_ur5e.launch.py \
   target_roll:=0.0 target_pitch:=3.14159 target_yaw:=0.0 \
   execute:=true
 ```
-**Improvement**
 
-You can construct a unic launch file for Gazebo and MoveIt (ur5e_sim_moveit.launch.py)

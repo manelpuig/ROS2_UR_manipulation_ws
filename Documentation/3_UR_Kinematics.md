@@ -1,5 +1,20 @@
 # UR5e Kinematics Package (ROS 2 Humble + MoveIt)
 
+Basic Python interface for MoveIt 2 built on top of ROS 2 actions and services. (https://docs.ros.org/en/humble/p/pymoveit2/index.html
+)
+
+Instructions to install:
+- Clone this repository, install dependencies and build with colcon.
+
+    ```bash
+    # Clone this repository into your favourite ROS 2 workspace
+    git clone https://github.com/AndrejOrsula/pymoveit2.git
+    # Install dependencies
+    rosdep install -y -r -i --rosdistro ${ROS_DISTRO} --from-paths .
+    # Build
+    colcon build --merge-install --symlink-install --cmake-args "-DCMAKE_BUILD_TYPE=Release"
+    ```
+
 This document describes how to create and use a simple ROS 2 package that provides **forward** and **inverse kinematics** tools for a **UR5e** robot using **MoveIt 2**.
 
 The package contains two nodes:
@@ -23,7 +38,7 @@ On your Ubuntu 22.04 PC:
   ```
 - UR5e MoveIt config already working:
   ```bash
-  ros2 launch ur_moveit_config ur_moveit.launch.py ur_type:=ur5e
+  ros2 launch ur_moveit_config ur_moveit.launch.py ur_type:=ur5e use_sim_time:=true
   ```
 
 You should be able to see the UR5e in RViz and plan motions before adding this package.
@@ -44,103 +59,7 @@ This creates a Python-based ROS 2 package.
 
 ---
 
-## 3. Package files
-
-Replace / add the following files inside `ur5e_kinematics_demo`.
-
-### 3.1 `package.xml`
-
-Edit `ur5e_kinematics_demo/package.xml` and make sure it minimally contains:
-
-```xml
-<?xml version="1.0"?>
-<package format="3">
-  <name>ur5e_kinematics_demo</name>
-  <version>0.0.1</version>
-  <description>UR5e forward and inverse kinematics demo nodes using MoveIt services.</description>
-
-  <maintainer email="you@example.com">Your Name</maintainer>
-  <license>MIT</license>
-
-  <buildtool_depend>ament_cmake</buildtool_depend>
-  <buildtool_depend>ament_python</buildtool_depend>
-
-  <exec_depend>rclpy</exec_depend>
-  <exec_depend>moveit_msgs</exec_depend>
-  <exec_depend>geometry_msgs</exec_depend>
-  <exec_depend>builtin_interfaces</exec_depend>
-
-  <export>
-  </export>
-</package>
-```
-
-### 3.2 `setup.py`
-
-Edit `ur5e_kinematics_demo/setup.py`:
-
-```python
-from setuptools import setup
-
-package_name = 'ur5e_kinematics_demo'
-
-setup(
-    name=package_name,
-    version='0.0.1',
-    packages=[package_name],
-    data_files=[
-        ('share/ament_index/resource_index/packages',
-         ['resource/' + package_name]),
-        ('share/' + package_name, ['package.xml']),
-        ('share/' + package_name + '/launch', ['launch/fk_ur5e.launch.py',
-                                               'launch/ik_ur5e.launch.py']),
-    ],
-    install_requires=['setuptools'],
-    zip_safe=True,
-    maintainer='Your Name',
-    maintainer_email='you@example.com',
-    description='UR5e forward and inverse kinematics demo using MoveIt services.',
-    license='MIT',
-    tests_require=['pytest'],
-    entry_points={
-        'console_scripts': [
-            'ur5e_forward_kinematics_node = ur5e_kinematics_demo.ur5e_forward_kinematics_node:main',
-            'ur5e_inverse_kinematics_node = ur5e_kinematics_demo.ur5e_inverse_kinematics_node:main',
-        ],
-    },
-)
-```
-
-### 3.3 `setup.cfg` (optional but recommended)
-
-Create `ur5e_kinematics_demo/setup.cfg`:
-
-```ini
-[develop]
-script-dir=$base/lib/ur5e_kinematics_demo
-[install]
-install-scripts=$base/lib/ur5e_kinematics_demo
-```
-
-### 3.4 `resource/ur5e_kinematics_demo`
-
-Ensure the file `ur5e_kinematics_demo/resource/ur5e_kinematics_demo` exists and contains just:
-
-```text
-ur5e_kinematics_demo
-```
-
-### 3.5 Python package init
-
-Create `ur5e_kinematics_demo/ur5e_kinematics_demo/__init__.py` (can be empty):
-
-```python
-# Empty init to make this a Python package
-```
-
----
-
-## 4. Forward kinematics node
+## 3. Forward kinematics node
 
 Create `ur5e_kinematics_demo/ur5e_kinematics_demo/ur5e_forward_kinematics_node.py`:
 
@@ -262,7 +181,7 @@ def main(args=None):
 
 ---
 
-## 5. Inverse kinematics node
+## 4. Inverse kinematics node
 
 Create `ur5e_kinematics_demo/ur5e_kinematics_demo/ur5e_inverse_kinematics_node.py`:
 
@@ -428,7 +347,7 @@ def main(args=None):
 
 ---
 
-## 6. Launch files
+## 5. Launch files
 
 Create the `launch` folder:
 
@@ -436,7 +355,7 @@ Create the `launch` folder:
 mkdir -p ur5e_kinematics_demo/launch
 ```
 
-### 6.1 Forward kinematics launch: `fk_ur5e.launch.py`
+### 5.1 Forward kinematics launch: `fk_ur5e.launch.py`
 
 ```python
 from launch import LaunchDescription
@@ -481,7 +400,7 @@ def generate_launch_description():
     ])
 ```
 
-### 6.2 Inverse kinematics launch: `ik_ur5e.launch.py`
+### 5.2 Inverse kinematics launch: `ik_ur5e.launch.py`
 
 ```python
 from launch import LaunchDescription
@@ -530,7 +449,7 @@ def generate_launch_description():
 
 ---
 
-## 7. Build the workspace
+## 6. Build the workspace
 
 ```bash
 cd ~/ROS2_UR_manipulation_ws
@@ -540,14 +459,14 @@ source install/setup.bash
 
 ---
 
-## 8. How to run
+## 7. How to run
 
-### 8.1 Forward kinematics
+### 7.1 Forward kinematics
 
 Terminal 1 – start MoveIt:
 
 ```bash
-ros2 launch ur_moveit_config ur_moveit.launch.py ur_type:=ur5e
+ros2 launch ur_moveit_config ur_moveit.launch.py ur_type:=ur5e use_sim_time:=true
 ```
 
 Terminal 2 – compute FK for a given joint configuration:
@@ -565,7 +484,7 @@ ros2 launch ur5e_kinematics_demo fk_ur5e.launch.py \
   joint6:=0.0
 ```
 
-### 8.2 Inverse kinematics
+### 7.2 Inverse kinematics
 
 Terminal 1 – MoveIt (same as before).
 
@@ -588,7 +507,7 @@ The node prints the solution joint values.
 
 ---
 
-## 9. Extensions
+## 8. Extensions
 
 - Publish FK result on a topic, e.g. `/ur5e_fk_pose`.
 - Turn IK node into a service that accepts pose requests at runtime.

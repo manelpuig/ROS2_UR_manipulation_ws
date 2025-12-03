@@ -32,3 +32,9 @@ def generate_launch_description():
             'group_name': LaunchConfiguration('group_name'),
         }]
     )
+
+    return LaunchDescription([
+        joint1, joint2, joint3, joint4, joint5, joint6,
+        fk_link, group_name,
+        node
+    ])

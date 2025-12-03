@@ -108,3 +108,6 @@ ros2 launch ur5e_kinematics_demo ik_ur5e.launch.py \
   target_roll:=0.0 target_pitch:=3.14159 target_yaw:=0.0 \
   execute:=true
 ```
+**Improvement**
+
+You can construct a unic launch file for Gazebo and MoveIt (ur5e_sim_moveit.launch.py)

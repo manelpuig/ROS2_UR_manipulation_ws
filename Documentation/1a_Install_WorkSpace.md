@@ -59,6 +59,13 @@ Instructions to install:
     # Build
     colcon build --merge-install --symlink-install --cmake-args "-DCMAKE_BUILD_TYPE=Release"
     ```
+- Delete some folsers to sync the ws on remote github
+    ```bash
+    cd ~/Desktop/ROS2_UR_manipulation_ws/src/pymoveit2
+    sudo rm -rf .git
+    cd ~/Desktop/ROS2_UR_manipulation_ws
+    git rm --cached src/pymoveit2
+    ```
 
 Verify the `.bashrc` file contains::
 

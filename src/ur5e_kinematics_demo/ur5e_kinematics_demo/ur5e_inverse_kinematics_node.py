@@ -8,8 +8,6 @@ from sensor_msgs.msg import JointState
 from moveit_msgs.srv import GetPositionIK
 
 from pymoveit2 import MoveIt2
-#from spatialmath.base import rpy2q  # (roll,pitch,yaw)-> quaternion [w,x,y,z]
-from tf_transformations import quaternion_from_euler
 
 
 UR5E_JOINTS = [
@@ -58,6 +56,21 @@ class UR5eIKDemo(Node):
         self._done = False
         self.create_timer(0.1, self._run_once)
 
+    def quaternion_from_euler(roll: float, pitch: float, yaw: float):
+        """Convert RPY (rad) to quaternion (x, y, z, w). No external deps."""
+        cr = math.cos(roll * 0.5)
+        sr = math.sin(roll * 0.5)
+        cp = math.cos(pitch * 0.5)
+        sp = math.sin(pitch * 0.5)
+        cy = math.cos(yaw * 0.5)
+        sy = math.sin(yaw * 0.5)
+
+        qw = cr * cp * cy + sr * sp * sy
+        qx = sr * cp * cy - cr * sp * sy
+        qy = cr * sp * cy + sr * cp * sy
+        qz = cr * cp * sy - sr * sp * cy
+        return qx, qy, qz, qw
+
     def _run_once(self):
         if self._done:
             return
@@ -86,7 +99,7 @@ class UR5eIKDemo(Node):
         pose.pose.orientation.y = float(qy)
         pose.pose.orientation.z = float(qz)
         pose.pose.orientation.w = float(qw)
-        
+
         req.ik_request.pose_stamped = pose
 
         js = JointState()

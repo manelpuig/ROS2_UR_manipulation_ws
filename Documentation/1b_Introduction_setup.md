@@ -35,7 +35,8 @@ To work on the project (during lab sessions or for homework), each student has t
   cd /home/user
   git clone https://github.com/director_username/ROS2_UR_manipulation_ws
   cd ROS2_UR_manipulation_ws
-  colcon build
+  chmod +x install_ur_moveit_gazebo_humble.sh
+  ./install_ur_moveit_gazebo_humble.sh --ws ~/ROS2_UR_manipulation_ws
   ```
   >Successives times, in TheConstruct simulation environment, you can update the project with:
   ```shell

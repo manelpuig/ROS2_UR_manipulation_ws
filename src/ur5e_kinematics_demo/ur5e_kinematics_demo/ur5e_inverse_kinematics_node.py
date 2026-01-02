@@ -19,6 +19,20 @@ UR5E_JOINTS = [
     "wrist_3_joint",
 ]
 
+def quaternion_from_euler(roll: float, pitch: float, yaw: float):
+    """Convert RPY (rad) to quaternion (x, y, z, w). No external deps."""
+    cr = math.cos(roll * 0.5)
+    sr = math.sin(roll * 0.5)
+    cp = math.cos(pitch * 0.5)
+    sp = math.sin(pitch * 0.5)
+    cy = math.cos(yaw * 0.5)
+    sy = math.sin(yaw * 0.5)
+
+    qw = cr * cp * cy + sr * sp * sy
+    qx = sr * cp * cy - cr * sp * sy
+    qy = cr * sp * cy + sr * cp * sy
+    qz = cr * cp * sy - sr * sp * cy
+    return qx, qy, qz, qw
 
 class UR5eIKDemo(Node):
     def __init__(self):
@@ -55,21 +69,6 @@ class UR5eIKDemo(Node):
 
         self._done = False
         self.create_timer(0.1, self._run_once)
-
-    def quaternion_from_euler(roll: float, pitch: float, yaw: float):
-        """Convert RPY (rad) to quaternion (x, y, z, w). No external deps."""
-        cr = math.cos(roll * 0.5)
-        sr = math.sin(roll * 0.5)
-        cp = math.cos(pitch * 0.5)
-        sp = math.sin(pitch * 0.5)
-        cy = math.cos(yaw * 0.5)
-        sy = math.sin(yaw * 0.5)
-
-        qw = cr * cp * cy + sr * sp * sy
-        qx = sr * cp * cy - cr * sp * sy
-        qy = cr * sp * cy + sr * cp * sy
-        qz = cr * cp * sy - sr * sp * cy
-        return qx, qy, qz, qw
 
     def _run_once(self):
         if self._done:

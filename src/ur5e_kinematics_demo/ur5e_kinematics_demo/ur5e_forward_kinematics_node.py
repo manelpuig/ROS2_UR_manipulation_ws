@@ -13,7 +13,6 @@ class UR5eMoveJoints(Node):
         self.declare_parameter("joints", [0.0, -1.57, 1.57, 0.0, 1.57, 0.0])
         self.declare_parameter("group_name", "ur_manipulator")
         self.declare_parameter("execute", True)
-        self.declare_parameter("use_sim_time", False)
         self.declare_parameter("max_velocity", 0.3)
         self.declare_parameter("max_acceleration", 0.3)
 

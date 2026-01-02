@@ -35,8 +35,7 @@ To work on the project (during lab sessions or for homework), each student has t
   cd /home/user
   git clone https://github.com/director_username/ROS2_UR_manipulation_ws
   cd ROS2_UR_manipulation_ws
-  chmod +x install_ur_moveit_gazebo_humble.sh
-  ./install_ur_moveit_gazebo_humble.sh --ws ~/ROS2_UR_manipulation_ws
+  colcon build --symlink-install
   ```
   >Successives times, in TheConstruct simulation environment, you can update the project with:
   ```shell
@@ -46,14 +45,9 @@ To work on the project (during lab sessions or for homework), each student has t
   ````shell
   export ROS_DOMAIN_ID=0
   export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
-  export GAZEBO_MODEL_PATH=/home/user/ROS2_rUBot_mecanum_ws/src/my_robot_bringup/models:$GAZEBO_MODEL_PATH
   source /opt/ros/humble/setup.bash
   source /usr/share/colcon_argcomplete/hook/colcon-argcomplete.bash
-  source /home/user/ROS2_rUBot_tutorial_ws/install/setup.bash
-  source /home/user/ROS2_rUBot_mecanum_ws/install/setup.bash
   source /home/user/ROS2_UR_manipulation_ws/install/setup.bash
-  #cd /home/user/ROS2_rUBot_tutorial_ws
-  #cd /home/user/ROS2_rUBot_mecanum_ws
   cd /home/user/ROS2_UR_manipulation_ws
   ````
 - If the compilation process returns warnings on "Deprecated setup tools", proceed with:

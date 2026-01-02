@@ -4,30 +4,35 @@ set -euo pipefail
 usage() {
   cat <<'EOF'
 Usage:
-  ./install_ur_moveit_keep_desktop_full.sh --ws /path/to/workspace [--pin-exact <apt_version_string>]
+  ./install_ur_moveit_tc_humble.sh --ws /path/to/workspace [--rosdistro humble]
+                                  [--fix-ros-repo]
+                                  [--pin-moveit-minor 2.5.9]
+
+Default behavior (TheConstruct-friendly):
+  - Does NOT touch ROS apt keys/sources unless --fix-ros-repo is used.
+  - Repairs apt state (fix-broken) + full-upgrade.
+  - Installs UR + MoveIt + ros2_control + Gazebo Classic integration packages.
+  - Makes MoveIt consistent via --reinstall (no timestamp pinning).
+  - rosdep best-effort + colcon build --symlink-install.
 
 Examples:
-  ./install_ur_moveit_keep_desktop_full.sh --ws ~/ROS2_UR_manipulation_ws
-  ./install_ur_moveit_keep_desktop_full.sh --ws ~/ROS2_UR_manipulation_ws \
-      --pin-exact 2.5.9-1jammy.20251119.004651
-
-Behavior:
-  - Keeps ros-humble-desktop-full (does NOT remove ros-gz/gz/ign packages).
-  - Repairs APT (fix-broken) and prevents Signed-By conflicts for ROS2 repo.
-  - Installs UR + MoveIt + Gazebo Classic packages if needed.
-  - Pins MoveIt to ONE version:
-      * Default: pins to the current apt "Candidate" version (stable & reproducible per repo snapshot).
-      * Optional: --pin-exact pins to an exact apt version string.
+  ./install_ur_moveit_tc_humble.sh --ws ~/ROS2_UR_manipulation_ws
+  ./install_ur_moveit_tc_humble.sh --ws ~/ROS2_UR_manipulation_ws --pin-moveit-minor 2.5.9
+  ./install_ur_moveit_tc_humble.sh --ws ~/ROS2_UR_manipulation_ws --fix-ros-repo
 EOF
 }
 
 WS=""
-PIN_EXACT=""
+ROS_DISTRO="humble"
+FIX_ROS_REPO="false"
+PIN_MOVEIT_MINOR=""   # e.g. "2.5.9" -> pins to "2.5.9-*"
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --ws) WS="${2:-}"; shift 2 ;;
-    --pin-exact) PIN_EXACT="${2:-}"; shift 2 ;;
+    --rosdistro) ROS_DISTRO="${2:-}"; shift 2 ;;
+    --fix-ros-repo) FIX_ROS_REPO="true"; shift 1 ;;
+    --pin-moveit-minor) PIN_MOVEIT_MINOR="${2:-}"; shift 2 ;;
     -h|--help) usage; exit 0 ;;
     *)
       if [[ -z "${WS}" ]]; then WS="$1"; shift
@@ -44,28 +49,34 @@ if [[ -z "${WS}" ]]; then
 fi
 
 WS="${WS/#\~/${HOME}}"
-
-ROS_DISTRO="humble"
-UBUNTU_CODENAME="jammy"
-
-# Canonical ROS2 keyring + list (avoid Signed-By conflicts)
-ROS_KEYRING="/etc/apt/keyrings/ros-archive-keyring.gpg"
-ROS_LIST="/etc/apt/sources.list.d/ros2.list"
+WS="$(readlink -f "${WS}")"
 
 echo "Workspace: ${WS}"
 echo "ROS distro: ${ROS_DISTRO}"
-echo "Pin exact MoveIt version: ${PIN_EXACT:-<none>}"
-echo "Note: This script keeps ros-humble-desktop-full and does NOT uninstall ros-gz / gz / ign packages."
+echo "Fix ROS repo: ${FIX_ROS_REPO}"
+echo "Pin MoveIt minor: ${PIN_MOVEIT_MINOR:-<none>}"
 
-###############################################################################
-# 1) Fix ROS2 repo Signed-By conflicts (without removing gz packages)
-###############################################################################
-echo "[1/7] Repairing ROS 2 APT sources (Signed-By conflicts)..."
+if [[ ! -d "${WS}" ]]; then
+  echo "ERROR: Workspace does not exist: ${WS}"
+  exit 1
+fi
 
-sudo mkdir -p /etc/apt/keyrings
+# ------------------------------------------------------------
+# 0) (Optional) Fix ROS 2 apt repo Signed-By conflicts
+#     Use ONLY if you have repo/key errors.
+# ------------------------------------------------------------
+if [[ "${FIX_ROS_REPO}" == "true" ]]; then
+  echo ""
+  echo "[0/7] Fixing ROS 2 apt repository (Signed-By conflicts)..."
 
-# Remove ONLY entries that point to packages.ros.org/ros2/ubuntu to avoid duplicates.
-sudo bash -c '
+  UBUNTU_CODENAME="jammy"
+  KEYRING="/etc/apt/keyrings/ros-archive-keyring.gpg"
+  ROS_LIST="/etc/apt/sources.list.d/ros2.list"
+
+  sudo mkdir -p /etc/apt/keyrings
+
+  # Remove only entries referencing packages.ros.org/ros2/ubuntu to avoid duplicates
+  sudo bash -c '
 set -e
 for f in /etc/apt/sources.list.d/*.list /etc/apt/sources.list.d/*.sources; do
   [ -f "$f" ] || continue
@@ -78,32 +89,51 @@ if [ -f /etc/apt/sources.list ]; then
 fi
 '
 
-# Minimal tools
-sudo apt-get update -y || true
-sudo apt-get install -y curl gnupg ca-certificates
+  sudo apt-get update -y || true
+  sudo apt-get install -y curl gnupg ca-certificates
 
-# Key + single repo entry
-curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key | \
-  gpg --dearmor | sudo tee "${ROS_KEYRING}" > /dev/null
+  curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key | \
+    gpg --dearmor | sudo tee "${KEYRING}" > /dev/null
 
-echo "deb [arch=$(dpkg --print-architecture) signed-by=${ROS_KEYRING}] http://packages.ros.org/ros2/ubuntu ${UBUNTU_CODENAME} main" | \
-  sudo tee "${ROS_LIST}" > /dev/null
+  echo "deb [arch=$(dpkg --print-architecture) signed-by=${KEYRING}] http://packages.ros.org/ros2/ubuntu ${UBUNTU_CODENAME} main" | \
+    sudo tee "${ROS_LIST}" > /dev/null
+fi
 
-###############################################################################
-# 2) Repair APT state (your PC had fix-broken issues)
-###############################################################################
-echo "[2/7] Repairing APT dependency state (fix-broken) + full upgrade..."
-sudo apt-get update -y
-sudo apt-get --fix-broken install -y
-sudo apt-get full-upgrade -y
-sudo apt-get autoremove -y
+# ------------------------------------------------------------
+# 1) APT health (important in preconfigured images)
+# ------------------------------------------------------------
+echo ""
+echo "[1/7] APT health: update + fix-broken + full-upgrade..."
+sudo apt update
+sudo apt --fix-broken install -y
+sudo apt full-upgrade -y
+sudo apt autoremove -y
 
-###############################################################################
-# 3) Install required packages (without removing desktop-full)
-###############################################################################
-echo "[3/7] Installing UR + MoveIt + Gazebo Classic packages (no removals)..."
+# ------------------------------------------------------------
+# 2) (Optional) Pin MoveIt to a minor version (safe glob, no timestamps)
+# ------------------------------------------------------------
+if [[ -n "${PIN_MOVEIT_MINOR}" ]]; then
+  echo ""
+  echo "[2/7] Pinning MoveIt to ${PIN_MOVEIT_MINOR}-* (safe glob)..."
+  sudo tee /etc/apt/preferences.d/moveit-pin.pref >/dev/null <<EOF
+Package: ros-${ROS_DISTRO}-moveit*
+Pin: version ${PIN_MOVEIT_MINOR}-*
+Pin-Priority: 1001
+EOF
+  sudo apt update
+else
+  echo ""
+  echo "[2/7] MoveIt pinning skipped."
+fi
 
-sudo apt-get install -y \
+# ------------------------------------------------------------
+# 3) Install packages (your original list + build tools)
+#     This should NOT conflict with TheConstruct if repos are consistent.
+# ------------------------------------------------------------
+echo ""
+echo "[3/7] Installing UR + MoveIt + ros2_control + Gazebo Classic integration packages..."
+
+sudo apt install -y \
   python3-pip \
   python3-setuptools \
   python3-colcon-common-extensions \
@@ -117,104 +147,80 @@ sudo apt-get install -y \
   ros-${ROS_DISTRO}-moveit \
   ros-${ROS_DISTRO}-moveit-ros \
   ros-${ROS_DISTRO}-moveit-planners-ompl \
+  ros-${ROS_DISTRO}-ros2-control \
+  ros-${ROS_DISTRO}-ros2-controllers \
+  ros-${ROS_DISTRO}-controller-manager \
+  ros-${ROS_DISTRO}-controller-interface \
+  ros-${ROS_DISTRO}-realtime-tools \
+  gazebo \
   ros-${ROS_DISTRO}-gazebo-ros \
   ros-${ROS_DISTRO}-gazebo-ros-pkgs \
-  ros-${ROS_DISTRO}-gazebo-ros2-control \
-  gazebo
+  ros-${ROS_DISTRO}-gazebo-ros2-control
 
-###############################################################################
-# 4) Pin MoveIt to ONE version (default: pin to Candidate)
-###############################################################################
-echo "[4/7] Pinning MoveIt to a single version..."
-
-MOVEIT_PKGS=(
-  ros-${ROS_DISTRO}-moveit-core
-  ros-${ROS_DISTRO}-moveit-common
-  ros-${ROS_DISTRO}-moveit-ros-move-group
-  ros-${ROS_DISTRO}-moveit-ros-planning-interface
-  ros-${ROS_DISTRO}-moveit-ros-planning
+# ------------------------------------------------------------
+# 4) Make MoveIt consistent (this is what fixed your mixed versions)
+# ------------------------------------------------------------
+echo ""
+echo "[4/7] Reinstalling MoveIt meta packages for consistency..."
+sudo apt install -y --reinstall \
+  ros-${ROS_DISTRO}-moveit \
+  ros-${ROS_DISTRO}-moveit-ros \
   ros-${ROS_DISTRO}-moveit-planners-ompl
-  ros-${ROS_DISTRO}-moveit-ros
-)
 
-get_candidate_version() {
-  local pkg="$1"
-  apt-cache policy "$pkg" 2>/dev/null | awk '/Candidate:/{print $2; exit}'
-}
+# ------------------------------------------------------------
+# 5) Source ROS (avoid set -u issues) + clean stale prefix paths
+# ------------------------------------------------------------
+echo ""
+echo "[5/7] Sourcing ROS env + cleaning stale prefix paths..."
 
-if [[ -n "${PIN_EXACT}" ]]; then
-  MOVEIT_VER="${PIN_EXACT}"
-else
-  MOVEIT_VER="$(get_candidate_version "ros-${ROS_DISTRO}-moveit-core")"
-fi
-
-if [[ -z "${MOVEIT_VER}" || "${MOVEIT_VER}" == "(none)" ]]; then
-  echo "ERROR: Could not determine MoveIt version from apt."
-  echo "Check: apt-cache policy ros-${ROS_DISTRO}-moveit-core"
-  exit 1
-fi
-
-echo "Using MoveIt version: ${MOVEIT_VER}"
-
-# Install exactly that version for the main coupling set.
-# If some subpackages do not exist with exactly that version, apt will fail early (good).
-sudo apt-get install -y \
-  "ros-${ROS_DISTRO}-moveit-core=${MOVEIT_VER}" \
-  "ros-${ROS_DISTRO}-moveit-common=${MOVEIT_VER}" \
-  "ros-${ROS_DISTRO}-moveit-ros-move-group=${MOVEIT_VER}" \
-  "ros-${ROS_DISTRO}-moveit-ros-planning-interface=${MOVEIT_VER}" \
-  "ros-${ROS_DISTRO}-moveit-ros-planning=${MOVEIT_VER}" \
-  "ros-${ROS_DISTRO}-moveit-planners-ompl=${MOVEIT_VER}" \
-  "ros-${ROS_DISTRO}-moveit-ros=${MOVEIT_VER}"
-
-# Hold to prevent drifting back to mixed versions
-sudo apt-mark hold "${MOVEIT_PKGS[@]}"
-
-sudo ldconfig
-
-###############################################################################
-# 5) rosdep for workspace
-###############################################################################
-echo "[5/7] rosdep install for workspace..."
-
-if [ ! -f /etc/ros/rosdep/sources.list.d/20-default.list ]; then
-  sudo rosdep init
-fi
-rosdep update
-
-# source ROS setup (avoid set -u unbound var issues)
 set +u
 source /opt/ros/${ROS_DISTRO}/setup.bash
 set -u
 
-if [ -d "${WS}/src" ]; then
-  rosdep install --from-paths "${WS}/src" --ignore-src -y --rosdistro "${ROS_DISTRO}" || true
+clean_prefix_var() {
+  local var="$1"
+  local value="${!var-}"
+  [[ -z "${value}" ]] && return 0
+  local new=""
+  IFS=':' read -r -a parts <<< "${value}"
+  for p in "${parts[@]}"; do
+    [[ -d "${p}" ]] && new="${new:+${new}:}${p}"
+  done
+  export "${var}=${new}"
+}
+clean_prefix_var AMENT_PREFIX_PATH
+clean_prefix_var COLCON_PREFIX_PATH
+clean_prefix_var CMAKE_PREFIX_PATH
+
+# ------------------------------------------------------------
+# 6) rosdep (best-effort)
+# ------------------------------------------------------------
+echo ""
+echo "[6/7] rosdep install (best-effort)..."
+
+if command -v rosdep >/dev/null 2>&1; then
+  if [[ ! -f /etc/ros/rosdep/sources.list.d/20-default.list ]]; then
+    sudo rosdep init || true
+  fi
+  rosdep update || true
+  if [[ -d "${WS}/src" ]]; then
+    rosdep install --from-paths "${WS}/src" --ignore-src -r -y --rosdistro "${ROS_DISTRO}" || true
+  fi
 else
-  echo "WARNING: ${WS}/src not found; skipping rosdep."
+  echo "rosdep not found; skipping."
 fi
 
-###############################################################################
-# 6) Build workspace
-###############################################################################
-echo "[6/7] Building workspace..."
-if [ -d "${WS}" ]; then
-  rm -rf "${WS}/build" "${WS}/install" "${WS}/log"
-  cd "${WS}"
-  # ROS already sourced above; keep it consistent
-  colcon build --symlink-install
-fi
-
-###############################################################################
-# 7) Post-check
-###############################################################################
-echo "[7/7] Post-check: MoveIt versions installed (should match) + hold status"
-
-dpkg -l | grep -E "ros-${ROS_DISTRO}-moveit-(core|common|ros-move-group|ros-planning-interface|planners-ompl)" || true
+# ------------------------------------------------------------
+# 7) Build workspace
+# ------------------------------------------------------------
 echo ""
-echo "Held MoveIt packages:"
-apt-mark showhold | grep -E "ros-${ROS_DISTRO}-moveit-" || true
+echo "[7/7] Building workspace (symlink install)..."
+cd "${WS}"
+rm -rf build install log
+colcon build --symlink-install
 
 echo ""
-echo "DONE. In a NEW terminal:"
+echo "DONE."
+echo "New terminal:"
 echo "  source /opt/ros/${ROS_DISTRO}/setup.bash"
 echo "  source ${WS}/install/setup.bash"

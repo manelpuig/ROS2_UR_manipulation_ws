@@ -29,21 +29,7 @@ rm -rf Universal_Robots_ROS2_Tutorials/.git
 ```
 This will be done if you clone your forked github repository
 
-## 3. Install the UR ROS2 environment
-
-You will need to source the `setup_ur_env.sh` script to set up the environment variables for Universal Robots packages.
-
-```bash
-cd ROS2_UR_manipulation_ws
-source setup_ur_env.sh
-```
-This will:
-- Set the Gazebo keys 
-- Install the UR packages by APT
-- Install dependencies for UR repositories you cloned
-- Build the workspace
-
-## 4. Install `pymoveit` package
+## 3. Install `pymoveit` package
 
 Basic Python interface for MoveIt 2 built on top of ROS 2 actions and services. (https://docs.ros.org/en/humble/p/pymoveit2/index.html
 )
@@ -59,7 +45,7 @@ Instructions to install:
     # Build
     colcon build --merge-install --symlink-install --cmake-args "-DCMAKE_BUILD_TYPE=Release"
     ```
-- Delete some folsers to sync the ws on remote github
+- Delete some folders to sync the ws on remote github
     ```bash
     cd ~/Desktop/ROS2_UR_manipulation_ws/src/pymoveit2
     sudo rm -rf .git
@@ -75,6 +61,21 @@ source /usr/share/colcon_argcomplete/hook/colcon-argcomplete.bash
 source ~/ROS2_UR_manipulation_ws/install/setup.bash
 cd ROS2_UR_manipulation_ws
 ```
+## 4. Install the UR ROS2 environment
+
+You will need to execute the `install_ur_moveit_gazebo_humble.sh` script to install the needed environment for Universal Robots packages and moveit2 current version.
+
+```bash
+cd ROS2_UR_manipulation_ws
+chmod +x install_ur_moveit_gazebo_humble.sh
+./install_ur_moveit_gazebo_humble.sh --ws ~/ROS2_UR_manipulation_ws
+```
+This will:
+- Set the Gazebo keys 
+- Install the UR packages by APT
+- Install the current version of moveit if there is another older installation
+- Install dependencies for UR repositories you cloned
+- Build the workspace
 
 ## 5. Launch the UR5e bringup
 

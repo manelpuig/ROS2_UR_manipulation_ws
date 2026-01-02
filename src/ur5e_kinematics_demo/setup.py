@@ -20,7 +20,6 @@ setup(
     maintainer_email='you@example.com',
     description='UR5e forward and inverse kinematics demo using MoveIt services.',
     license='MIT',
-    tests_require=['pytest'],
     entry_points={
         'console_scripts': [
             'ur5e_forward_kinematics_node = ur5e_kinematics_demo.ur5e_forward_kinematics_node:main',

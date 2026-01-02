@@ -30,6 +30,8 @@ echo "🔧 Installing ROS2 simulation & MoveIt dependencies..."
 sudo apt update -y || true
 
 sudo apt install -y \
+  python3-setuptools \
+  python3-pip \
   ros-humble-ur \
   ros-humble-ur-description \
   ros-humble-ur-msgs \

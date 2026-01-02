@@ -71,6 +71,7 @@ Verify the `.bashrc` file contains::
 
 ```bash
 source /opt/ros/humble/setup.bash
+source /usr/share/colcon_argcomplete/hook/colcon-argcomplete.bash
 source ~/ROS2_UR_manipulation_ws/install/setup.bash
 cd ROS2_UR_manipulation_ws
 ```

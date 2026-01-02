@@ -1,9 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# -------------------------------------------------------
-# Usage
-# -------------------------------------------------------
 usage() {
   cat <<'EOF'
 Usage:
@@ -14,15 +11,15 @@ Examples:
   ./install_ur_moveit_gazebo_humble.sh --ws ~/ROS2_UR_manipulation_ws --pin-moveit 2.5.9-1jammy.20251119.004651
 
 Notes:
-  - --pin-moveit pins selected MoveIt packages to the exact apt version string.
-  - If you pin, you assume that version exists in your ROS apt repository.
+  - --pin-moveit pins selected MoveIt packages to the exact apt version string and holds them.
+  - If you pin, the exact version must exist in your ROS apt repository.
 EOF
 }
 
 WS=""
 PIN_MOVEIT_VERSION=""
 
-# Allow both --ws and positional $1 for convenience
+# Parse args (allow --ws or first positional)
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --ws)
@@ -38,7 +35,6 @@ while [[ $# -gt 0 ]]; do
       exit 0
       ;;
     *)
-      # If WS not set yet, accept first positional argument as WS
       if [[ -z "${WS}" ]]; then
         WS="$1"
         shift
@@ -62,7 +58,9 @@ WS="${WS/#\~/${HOME}}"
 
 ROS_DISTRO="humble"
 UBUNTU_CODENAME="jammy"
-ROS_KEYRING="/etc/apt/keyrings/ros-archive-keyring.gpg"
+
+# Use a single canonical keyring + single list file
+ROS_KEYRING="/etc/apt/keyrings/ros2-archive-keyring.gpg"
 ROS_LIST="/etc/apt/sources.list.d/ros2.list"
 
 echo "Workspace: ${WS}"
@@ -70,23 +68,20 @@ echo "ROS distro: ${ROS_DISTRO}"
 echo "Pin MoveIt version: ${PIN_MOVEIT_VERSION:-<none>}"
 
 # -------------------------------------------------------
-# 0) Basic prerequisites
+# 0) Prerequisites for managing keys/sources
+#    (NO apt update yet, because sources may be broken)
 # -------------------------------------------------------
-sudo apt-get update -y
-sudo apt-get install -y curl gnupg lsb-release ca-certificates
+sudo apt-get install -y curl gnupg ca-certificates
 
 # -------------------------------------------------------
-# 1) Ensure ROS 2 APT repo (idempotent)
+# 1) Fix ROS 2 APT repo FIRST (before any apt update)
 # -------------------------------------------------------
-ROS_KEYRING="/etc/apt/keyrings/ros2-archive-keyring.gpg"
-ROS_LIST="/etc/apt/sources.list.d/ros2-latest.list"
-
 echo "Ensuring ROS 2 repository key and source list..."
 
 sudo mkdir -p /etc/apt/keyrings
 
-# Remove any ROS2 repo lists that reference the same repo but a different Signed-By keyring
-# (prevents 'Conflicting values set for option Signed-By')
+# Remove any ROS2 repo list files that point to packages.ros.org/ros2/ubuntu
+# to prevent Signed-By conflicts from multiple .list files.
 for f in /etc/apt/sources.list.d/*.list; do
   [ -f "$f" ] || continue
   if grep -q "packages.ros.org/ros2/ubuntu" "$f"; then
@@ -98,13 +93,14 @@ done
 curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key | \
   sudo gpg --dearmor -o "${ROS_KEYRING}"
 
-# Create the single authoritative repo list
+# Create single authoritative repo list
 echo "deb [arch=$(dpkg --print-architecture) signed-by=${ROS_KEYRING}] http://packages.ros.org/ros2/ubuntu ${UBUNTU_CODENAME} main" | \
   sudo tee "${ROS_LIST}" > /dev/null
+
 # -------------------------------------------------------
-# 2) Update + FULL upgrade to avoid partial upgrades
+# 2) NOW safe to apt update + full upgrade
 # -------------------------------------------------------
-echo "Updating apt indexes and performing full upgrade..."
+echo "Updating apt indexes and performing full upgrade (prevents partial ROS upgrades)..."
 sudo apt-get update -y
 sudo apt-get full-upgrade -y
 
@@ -139,7 +135,7 @@ sudo apt-get install -y \
   ros-${ROS_DISTRO}-gazebo-ros2-control
 
 # -------------------------------------------------------
-# 4) Optional: pin MoveIt packages to an exact version
+# 4) MoveIt coherence (optional pinning, otherwise upgrade to candidate)
 # -------------------------------------------------------
 MOVEIT_PKGS=(
   "ros-${ROS_DISTRO}-moveit-core"
@@ -152,9 +148,8 @@ MOVEIT_PKGS=(
 )
 
 if [[ -n "${PIN_MOVEIT_VERSION}" ]]; then
-  echo "Pinning MoveIt packages to version: ${PIN_MOVEIT_VERSION}"
+  echo "Pinning MoveIt packages to exact version: ${PIN_MOVEIT_VERSION}"
 
-  # Install the exact version explicitly (fails if unavailable)
   sudo apt-get install -y \
     "ros-${ROS_DISTRO}-moveit-core=${PIN_MOVEIT_VERSION}" \
     "ros-${ROS_DISTRO}-moveit-common=${PIN_MOVEIT_VERSION}" \
@@ -164,14 +159,12 @@ if [[ -n "${PIN_MOVEIT_VERSION}" ]]; then
     "ros-${ROS_DISTRO}-moveit-planners-ompl=${PIN_MOVEIT_VERSION}" \
     "ros-${ROS_DISTRO}-moveit-ros=${PIN_MOVEIT_VERSION}"
 
-  # Mark as held to prevent drifting on later upgrades
   sudo apt-mark hold "${MOVEIT_PKGS[@]}"
-
 else
-  echo "Forcing MoveIt packages to a consistent candidate version (recommended default)..."
+  echo "Upgrading MoveIt packages to the repository candidate versions (keeps them consistent)..."
   sudo apt-get install -y --only-upgrade "${MOVEIT_PKGS[@]}"
 
-  # If anything is still mismatched, reinstall core ones (safe)
+  # Safe fallback: reinstall the core coupling set (often clears partial states)
   sudo apt-get install -y --reinstall \
     ros-${ROS_DISTRO}-moveit-core \
     ros-${ROS_DISTRO}-moveit-ros-move-group \
@@ -203,7 +196,7 @@ else
 fi
 
 # -------------------------------------------------------
-# 6) Build workspace
+# 6) Build workspace (symlink install recommended for development)
 # -------------------------------------------------------
 echo "Building workspace..."
 if [ -d "${WS}" ]; then
@@ -215,7 +208,7 @@ if [ -d "${WS}" ]; then
 fi
 
 # -------------------------------------------------------
-# 7) Post-check: report MoveIt versions
+# 7) Post-check: versions and useful hints
 # -------------------------------------------------------
 echo "Post-check: MoveIt package versions (should match)."
 dpkg -l | grep -E "ros-${ROS_DISTRO}-moveit-(core|common|ros-move-group|ros-planning-interface|planners-ompl)" || true

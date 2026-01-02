@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-import ast
 import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import JointState
@@ -11,19 +10,15 @@ class UR5eMoveJoints(Node):
         super().__init__("ur5e_move_joints")
 
         # Params
-        self.declare_parameter("joints", "[0.0, -1.57, 1.57, 0.0, 1.57, 0.0]")
+        self.declare_parameter("joints", [0.0, -1.57, 1.57, 0.0, 1.57, 0.0])
         self.declare_parameter("group_name", "ur_manipulator")
         self.declare_parameter("execute", True)
         self.declare_parameter("use_sim_time", False)
         self.declare_parameter("max_velocity", 0.3)
         self.declare_parameter("max_acceleration", 0.3)
 
-        # Parse joints robustly (string "[...]" or list)
         raw = self.get_parameter("joints").value
-        if isinstance(raw, str):
-            self.joints = [float(v) for v in ast.literal_eval(raw)]
-        else:
-            self.joints = [float(v) for v in raw]
+        self.joints = [float(v) for v in raw]
 
         self.group_name = str(self.get_parameter("group_name").value)
         self.execute = bool(self.get_parameter("execute").value)

@@ -69,16 +69,6 @@ class UR5eMoveJoints(Node):
         self.get_logger().info("Joint states are available now.")
 
         # 2) Check FollowJointTrajectory action exists (key for Gazebo execution)
-        actions = self.get_action_names_and_types()
-        if not any(name == self.fjt_action for name, _types in actions):
-            self.get_logger().error(
-                f"Missing action '{self.fjt_action}'. "
-                "MoveIt may be in fake execution or controller is not exposed. "
-                "Gazebo will not move until this exists."
-            )
-            self.get_logger().info("Hint: ros2 action list | grep -i follow_joint_trajectory")
-            return 2
-
         if not self.execute:
             self.get_logger().info("execute:=false -> exiting without motion.")
             return 0

@@ -70,14 +70,16 @@ To work on the project (during lab sessions or for homework), each student has t
   ````
 We have now our workspace ready with the gripper only used for simulation purposes.
 
-Let's start by launching the robot arm UR3
-````shell
-ros2 launch ur_description view_ur.launch.py ur_type:=ur3
+Let's start Gazebo for simulation:
+```bash
+ros2 launch ur_simulation_gazebo ur_sim_control.launch.py ur_type:=ur5e use_sim_time:=true
+```
+Or launching the UR5e ROS 2 driver (fake hardware):
+```bash
+ros2 launch ur_robot_driver ur_control.launch.py ur_type:=ur5e robot_ip:=1.2.3.4 use_fake_hardware:=true launch_rviz:=false
 ````
-Leats start gazebo:
-````shell
-ros2 launch ur_simulation_gazebo ur_sim_control.launch.py
-````
+> the parameter robot_ip is mandatory but ignored if use_fake_hardware:=true 
+
 
 ## **3. Update and syncronize the repository project**
 

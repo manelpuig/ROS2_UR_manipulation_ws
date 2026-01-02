@@ -78,16 +78,29 @@ sudo apt-get install -y curl gnupg lsb-release ca-certificates
 # -------------------------------------------------------
 # 1) Ensure ROS 2 APT repo (idempotent)
 # -------------------------------------------------------
+ROS_KEYRING="/etc/apt/keyrings/ros2-archive-keyring.gpg"
+ROS_LIST="/etc/apt/sources.list.d/ros2-latest.list"
+
 echo "Ensuring ROS 2 repository key and source list..."
 
 sudo mkdir -p /etc/apt/keyrings
 
+# Remove any ROS2 repo lists that reference the same repo but a different Signed-By keyring
+# (prevents 'Conflicting values set for option Signed-By')
+for f in /etc/apt/sources.list.d/*.list; do
+  [ -f "$f" ] || continue
+  if grep -q "packages.ros.org/ros2/ubuntu" "$f"; then
+    sudo rm -f "$f"
+  fi
+done
+
+# Install/refresh keyring (idempotent)
 curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key | \
   sudo gpg --dearmor -o "${ROS_KEYRING}"
 
+# Create the single authoritative repo list
 echo "deb [arch=$(dpkg --print-architecture) signed-by=${ROS_KEYRING}] http://packages.ros.org/ros2/ubuntu ${UBUNTU_CODENAME} main" | \
   sudo tee "${ROS_LIST}" > /dev/null
-
 # -------------------------------------------------------
 # 2) Update + FULL upgrade to avoid partial upgrades
 # -------------------------------------------------------

@@ -28,7 +28,7 @@ class UR5ePickPlaceSimple(Node):
     """
 
     def __init__(self):
-        super().__init__("ur5e_pick_place_simple")
+        super().__init__("ur5e_pick_place")
 
         # Frames / group
         self.declare_parameter("group_name", "ur_manipulator")

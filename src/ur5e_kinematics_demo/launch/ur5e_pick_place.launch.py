@@ -50,8 +50,8 @@ def generate_launch_description():
 
     node = Node(
         package="ur5e_kinematics_demo",
-        executable="pick_place_simple",
-        name="ur5e_pick_place_simple",
+        executable="ur5e_pick_place_exe",
+        name="ur5e_pick_place",
         output="screen",
         parameters=[
             {

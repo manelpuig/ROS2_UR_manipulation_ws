@@ -24,8 +24,8 @@ setup(
         'console_scripts': [
             'ur5e_forward_kinematics_node = ur5e_kinematics_demo.ur5e_forward_kinematics_node:main',
             'ur5e_inverse_kinematics_node = ur5e_kinematics_demo.ur5e_inverse_kinematics_node:main',
-            'move_to_pose_exe = ur5e_kinematics_demo.move_to_pose:main',
-            'pick_place_exe = ur5e_kinematics_demo.pick_place:main',
+            'ur5e_move_to_pose_exe = ur5e_kinematics_demo.ur5e_move_to_pose:main',
+            'ur5e_pick_place_exe = ur5e_kinematics_demo.ur5e_pick_place:main',
         ],
     },
 )

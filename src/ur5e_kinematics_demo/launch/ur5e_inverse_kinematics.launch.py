@@ -22,7 +22,7 @@ def generate_launch_description():
     node = Node(
         package="ur5e_kinematics_demo",
         executable="ur5e_inverse_kinematics_node",
-        name="ur5e_ik_demo",
+        name="ur5e_inverse_kinematics_node",
         output="screen",
         parameters=[
             {

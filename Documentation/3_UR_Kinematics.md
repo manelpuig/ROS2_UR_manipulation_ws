@@ -10,7 +10,7 @@ The package contains two nodes:
 Both nodes call the standard MoveIt services `/compute_fk` and `/compute_ik`, so **MoveIt’s `move_group` must be running** (e.g., via `ur_moveit_config`).
 
 
-## 1. Prerequisites
+## Prerequisites
 
 On your Ubuntu 22.04 PC:
 
@@ -22,7 +22,7 @@ On your Ubuntu 22.04 PC:
   ```
 ---
 
-## 2. Create the package skeleton
+## Create the package skeleton
 
 In your workspace:
 
@@ -34,23 +34,7 @@ ros2 pkg create ur5e_kinematics_demo --build-type ament_python
 
 This creates a Python-based ROS 2 package.
 
----
-
-## 3. Forward kinematics node
-
-
-## 4. Inverse kinematics node
-
-
-## 5. Launch files
-
-
-### 5.1 Forward kinematics launch: `fk_ur5e.launch.py`
-
-
-### 5.2 Inverse kinematics launch: `ik_ur5e.launch.py`
-
-## 6. Build the workspace
+## Build the workspace
 
 ```bash
 cd ~/ROS2_UR_manipulation_ws
@@ -60,9 +44,7 @@ source install/setup.bash
 
 ---
 
-## 7. How to run
-
-### 7.1 Forward kinematics
+### Forward kinematics
 
 Using Gazebo for simulation:
 ```bash
@@ -77,15 +59,10 @@ ros2 launch ur_moveit_config ur_moveit.launch.py ur_type:=ur5e use_sim_time:=tru
 Compute FK and move for a given joint configuration:
 
 ```bash
-source /opt/ros/humble/setup.bash
-source ~/ROS2_UR_manipulation_ws/install/setup.bash
-
-ros2 launch ur5e_kinematics_demo fk_ur5e.launch.py \
-  joint1:=0.0 joint2:=-1.57 joint3:=1.57 joint4:=0.0 joint5:=1.57 joint6:=0.0 \
-  execute:=true
+ros2 launch ur5e_kinematics_demo ur5e_forward_kinematics.launch.py joints:="[0.0, -1.57, 1.57, 0.0, 1.57, 0.0]" execute:=true
 ```
 
-### 7.2 Inverse kinematics
+### Inverse kinematics
 
 Using Gazebo for simulation:
 ```bash
@@ -107,12 +84,6 @@ ros2 launch ur5e_kinematics_demo ur5e_sim_moveit.launch.py ur_type:=ur5e use_sim
 Compute FK and move for a desired pose:
 
 ```bash
-source /opt/ros/humble/setup.bash
-source ~/ROS2_UR_manipulation_ws/install/setup.bash
-
-ros2 launch ur5e_kinematics_demo ik_ur5e.launch.py \
-  target_x:=0.4 target_y:=0.1 target_z:=0.3 \
-  target_roll:=0.0 target_pitch:=3.14159 target_yaw:=0.0 \
-  execute:=true
+ros2 launch ur5e_kinematics_demo ur5e_inverse_kinematics.launch.py target_xyz := "[0.4, 0.0, 0.3]" target_rpy := "[0.0, 3.14159, 0.0]" execute:=true
 ```
 

@@ -49,7 +49,7 @@ def generate_launch_description():
 
     node = Node(
         package="ur5e_kinematics_demo",
-        executable="ur5e_move_joints",
+        executable="ur5e_forward_kinematics_node",
         name="ur5e_move_joints",
         output="screen",
         parameters=[

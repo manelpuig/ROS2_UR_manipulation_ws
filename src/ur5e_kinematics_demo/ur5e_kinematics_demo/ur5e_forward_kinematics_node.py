@@ -7,10 +7,27 @@ from pymoveit2 import MoveIt2
 
 from geometry_msgs.msg import TransformStamped
 import tf2_ros
+import math
 
-# ROS-friendly transformations (no SciPy dependency)
-from tf_transformations import euler_from_quaternion
+def euler_from_quaternion_xyzw(qx, qy, qz, qw):
+    # roll (x-axis rotation)
+    sinr_cosp = 2.0 * (qw * qx + qy * qz)
+    cosr_cosp = 1.0 - 2.0 * (qx * qx + qy * qy)
+    roll = math.atan2(sinr_cosp, cosr_cosp)
 
+    # pitch (y-axis rotation)
+    sinp = 2.0 * (qw * qy - qz * qx)
+    if abs(sinp) >= 1.0:
+        pitch = math.copysign(math.pi / 2.0, sinp)  # use 90° if out of range
+    else:
+        pitch = math.asin(sinp)
+
+    # yaw (z-axis rotation)
+    siny_cosp = 2.0 * (qw * qz + qx * qy)
+    cosy_cosp = 1.0 - 2.0 * (qy * qy + qz * qz)
+    yaw = math.atan2(siny_cosp, cosy_cosp)
+
+    return roll, pitch, yaw
 
 class UR5eMoveJoints(Node):
     def __init__(self):

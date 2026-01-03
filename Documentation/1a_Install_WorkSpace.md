@@ -70,6 +70,13 @@ cd ROS2_UR_manipulation_ws
 chmod +x install_ur_moveit_gazebo_humble.sh
 ./install_ur_moveit_gazebo_humble.sh --ws ~/ROS2_UR_manipulation_ws
 ```
+> Take care if ws is `~/ROS2_UR_manipulation_ws` or `~/Desktop\ROS2_UR_manipulation_ws`
+
+> In TheConstruct environment every time you want to work with, you will have to reinstall the system environment with (10min):
+````shell
+./install_ur_moveit_gazebo_humble.sh --ws ~/ROS2_UR_manipulation_ws --fix-ros-repo
+````
+
 This will:
 - Set the Gazebo keys 
 - Install the UR packages by APT

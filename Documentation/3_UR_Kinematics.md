@@ -10,17 +10,6 @@ The package contains two nodes:
 Both nodes call the standard MoveIt services `/compute_fk` and `/compute_ik`, so **MoveIt’s `move_group` must be running** (e.g., via `ur_moveit_config`).
 
 
-## Prerequisites
-
-On your Ubuntu 22.04 PC:
-
-- ROS 2 Humble installed.
-- UR driver + MoveIt installed (e.g. via your `setup_ur_env.sh`).
-- A workspace, e.g.:
-  ```bash
-  ~/ROS2_UR_manipulation_ws
-  ```
----
 
 ## Create the package skeleton
 
@@ -88,3 +77,31 @@ ros2 launch ur5e_kinematics_demo ur5e_inverse_kinematics.launch.py target_xyz:="
 ```
 > You have to install
 
+### Go to Pose
+
+Using Gazebo for simulation:
+```bash
+ros2 launch ur_simulation_gazebo ur_sim_control.launch.py ur_type:=ur5e use_sim_time:=true
+```
+Start MoveIt:
+
+```bash
+ros2 launch ur_moveit_config ur_moveit.launch.py ur_type:=ur5e use_sim_time:=true
+```
+**Improvement**
+
+You can construct a unic launch file for Gazebo and MoveIt (ur5e_sim_moveit.launch.py)
+
+```bash
+ros2 launch ur5e_kinematics_demo ur5e_sim_moveit.launch.py ur_type:=ur5e use_sim_time:=true
+```
+
+Compute FK and move for a desired pose:
+
+```bash
+ros2 launch ur5e_kinematics_demo ur5e_inverse_kinematics.launch.py target_xyz:="[0.4, 0.0, 0.3]" target_rpy:="[0.0, 3.14159, 0.0]" execute:=true
+```
+> You have to install `spatialmath` lib:
+````python
+python3 -m pip install --user spatialmath-python
+````

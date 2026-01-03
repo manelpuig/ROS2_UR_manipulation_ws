@@ -95,7 +95,7 @@ ros2 launch ur5e_kinematics_demo ur5e_sim_moveit.launch.py ur_type:=ur5e use_sim
 Compute FK and move for a desired pose:
 
 ```bash
-ros2 launch ur5e_kinematics_demo ur5e_move_to_pose.launch.py target_xyz:="[0.45, 0.10, 0.25]" target_rpy:="[0.0, 3.14159, 0.0]" execute:=true
+ros2 launch ur5e_kinematics_demo ur5e_move_to_pose.launch.py target_xyz:="[0.45, 0.10, 0.25]" target_rpy:="[0.0, 0.0, 0.0]" execute:=true
 ```
 > You have to install `spatialmath` lib:
 ````python

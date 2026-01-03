@@ -4,7 +4,6 @@ set -euo pipefail
 # ============================================================
 # install_ur_moveit_gazebo_humble.sh
 #
-# هدف:
 # - Fix ROS 2 apt repo/key automatically when EXPKEYSIG happens
 # - Install UR + MoveIt2 + Gazebo Classic deps (Humble/Jammy)
 # - rosdep install workspace deps
@@ -58,6 +57,33 @@ echo "Workspace: ${WS}"
 echo "ROS distro: ${ROS_DISTRO}"
 echo "Fix ROS repo: ${FIX_ROS_REPO}"
 echo "Pin MoveIt minor: ${PIN_MOVEIT_MINOR:-<none>}"
+
+# ----------------------------
+# Helpers
+# ----------------------------
+
+is_theconstruct() {
+  # Heuristic: not perfect, but harmless.
+  [[ -n "${THECONSTRUCT:-}" ]] || [[ -n "${ROSJECT_NAME:-}" ]] || [[ -d "/home/simulations" ]]
+}
+
+safe_source_ros() {
+  local setup_file="$1"
+
+  if [[ ! -f "${setup_file}" ]]; then
+    echo "ERROR: ${setup_file} not found. Is ROS 2 installed?"
+    return 1
+  fi
+
+  # TheConstruct sometimes breaks when nounset (-u) is enabled
+  # because setup.bash reads AMENT_TRACE_SETUP_FILES even if unset.
+  set +u
+  export AMENT_TRACE_SETUP_FILES="${AMENT_TRACE_SETUP_FILES:-}"
+  export AMENT_TRACE_SETUP_FILES_OVERRIDE="${AMENT_TRACE_SETUP_FILES_OVERRIDE:-}"
+  # shellcheck disable=SC1090
+  source "${setup_file}"
+  set -u
+}
 
 # ----------------------------
 # ROS APT repo/key fix helpers
@@ -139,10 +165,6 @@ apt_update_with_auto_fix
 # On ephemeral systems, dpkg can be mid-state. This makes the script recover.
 sudo apt --fix-broken install -y || true
 
-# Note: full-upgrade can be heavy on TheConstruct; keep it off by default.
-# If you really want it, uncomment the next line:
-# sudo apt-get -y full-upgrade || true
-
 # ============================================================
 # [2/7] Base Python tooling (APT)
 # ============================================================
@@ -162,8 +184,6 @@ sudo apt-get install -y \
 echo ""
 echo "[3/7] Installing ROS packages (UR + MoveIt + Gazebo Classic)..."
 
-# We DO NOT remove gz/ign packages (you asked to keep ros-humble-desktop-full intact).
-# We also target Gazebo Classic (gazebo11 + gazebo_ros_pkgs + gazebo_ros2_control).
 sudo apt-get install -y \
   gazebo \
   ros-"${ROS_DISTRO}"-gazebo-ros-pkgs \
@@ -182,8 +202,6 @@ sudo apt-get install -y \
   ros-"${ROS_DISTRO}"-moveit-ros \
   ros-"${ROS_DISTRO}"-moveit-planners-ompl || true
 
-# Optional: pin MoveIt minor (only if you really need strict reproducibility).
-# This is best-effort; if the exact version isn't available in the repo, apt will fail.
 if [[ -n "${PIN_MOVEIT_MINOR}" ]]; then
   echo ""
   echo "[3.1/7] Pinning MoveIt packages to version ${PIN_MOVEIT_MINOR}* (best-effort)..."
@@ -199,14 +217,7 @@ fi
 echo ""
 echo "[4/7] rosdep install for workspace (ignore-src)..."
 
-# Source ROS (required for rosdep to resolve ROS keys reliably)
-if [[ -f "/opt/ros/${ROS_DISTRO}/setup.bash" ]]; then
-  # shellcheck disable=SC1090
-  source "/opt/ros/${ROS_DISTRO}/setup.bash"
-else
-  echo "ERROR: /opt/ros/${ROS_DISTRO}/setup.bash not found. Is ROS 2 ${ROS_DISTRO} installed?"
-  exit 1
-fi
+safe_source_ros "/opt/ros/${ROS_DISTRO}/setup.bash"
 
 # Ensure workspace exists
 if [[ ! -d "${WS}" ]]; then
@@ -215,7 +226,13 @@ if [[ ! -d "${WS}" ]]; then
 fi
 
 # rosdep init is "once per machine"; in TheConstruct it may already be done.
-sudo rosdep init >/dev/null 2>&1 || true
+# Some TheConstruct images don't allow modifying /etc; ignore failures safely.
+if is_theconstruct; then
+  sudo rosdep init >/dev/null 2>&1 || true
+else
+  sudo rosdep init >/dev/null 2>&1 || true
+fi
+
 rosdep update
 
 if [[ -d "${WS}/src" ]]; then
@@ -239,7 +256,6 @@ colcon build --symlink-install
 echo ""
 echo "[6/7] Installing Python tools in user-space (pip --user)..."
 
-# Keep pip installs in ~/.local to avoid breaking system Python / ROS stacks
 python3 -m pip install --user --upgrade pip
 
 # Your requested extra dependency:

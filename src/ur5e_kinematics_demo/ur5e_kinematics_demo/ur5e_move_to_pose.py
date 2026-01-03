@@ -5,7 +5,6 @@ from rclpy.node import Node
 from geometry_msgs.msg import PoseStamped
 
 from pymoveit2 import MoveIt2
-from spatialmath.base import rpy2q  # returns [w, x, y, z]
 
 
 UR5E_JOINTS = [
@@ -18,10 +17,32 @@ UR5E_JOINTS = [
 ]
 
 
+def quat_from_rpy_zyx(roll: float, pitch: float, yaw: float):
+    """
+    R = Rz(yaw) * Ry(pitch) * Rx(roll)   (matrix multiplication order YPR)
+    Equivalent to geometric rotation order RPY (roll -> pitch -> yaw).
+
+    Returns (qx, qy, qz, qw) in ROS order (x,y,z,w).
+    """
+    cy = math.cos(yaw * 0.5)
+    sy = math.sin(yaw * 0.5)
+    cp = math.cos(pitch * 0.5)
+    sp = math.sin(pitch * 0.5)
+    cr = math.cos(roll * 0.5)
+    sr = math.sin(roll * 0.5)
+
+    qw = cr * cp * cy + sr * sp * sy
+    qx = sr * cp * cy - cr * sp * sy
+    qy = cr * sp * cy + sr * cp * sy
+    qz = cr * cp * sy - sr * sp * cy
+
+    return float(qx), float(qy), float(qz), float(qw)
+
+
 class UR5eMoveToPose(Node):
     """
     Minimal node to move UR5e end-effector to a target pose using MoveIt2.
-    Works for simulation and real robot (same code), backend must provide MoveIt action servers.
+    Uses ONLY PoseStamped API (move_to_pose_stamped) for frame-safe teaching.
     """
 
     def __init__(self):
@@ -31,7 +52,6 @@ class UR5eMoveToPose(Node):
         self.declare_parameter("group_name", "ur_manipulator")
         self.declare_parameter("base_frame", "base_link")
         self.declare_parameter("ee_frame", "tool0")
-        self.declare_parameter("use_sim_time", False)
 
         # Target pose parameters
         self.declare_parameter("target_xyz", [0.40, 0.00, 0.30])
@@ -44,9 +64,9 @@ class UR5eMoveToPose(Node):
         self.declare_parameter("max_acceleration", 0.3)
         self.declare_parameter("execute", True)
 
-        self.group_name = self.get_parameter("group_name").value
-        self.base_frame = self.get_parameter("base_frame").value
-        self.ee_frame = self.get_parameter("ee_frame").value
+        self.group_name = str(self.get_parameter("group_name").value)
+        self.base_frame = str(self.get_parameter("base_frame").value)
+        self.ee_frame = str(self.get_parameter("ee_frame").value)
 
         self.target_xyz = [float(x) for x in self.get_parameter("target_xyz").value]
         self.target_rpy = [float(x) for x in self.get_parameter("target_rpy").value]
@@ -68,6 +88,13 @@ class UR5eMoveToPose(Node):
         self.moveit2.max_velocity = self.max_velocity
         self.moveit2.max_acceleration = self.max_acceleration
 
+        # Enforce PoseStamped API only (your requested constraint)
+        if not hasattr(self.moveit2, "move_to_pose_stamped"):
+            raise RuntimeError(
+                "This pymoveit2 version does not provide move_to_pose_stamped(). "
+                "Update pymoveit2 or relax the constraint to allow move_to_pose()."
+            )
+
         self._done = False
         self.create_timer(0.1, self._run_once)
 
@@ -84,28 +111,21 @@ class UR5eMoveToPose(Node):
         if self.use_quat:
             qx, qy, qz, qw = self.target_quat_xyzw
         else:
-            # spatialmath returns [w,x,y,z]
-            qw, qx, qy, qz = rpy2q(*self.target_rpy, order="xyz", unit="rad")
+            roll, pitch, yaw = self.target_rpy
+            qx, qy, qz, qw = quat_from_rpy_zyx(roll, pitch, yaw)
 
-        pose.pose.orientation.x = float(qx)
-        pose.pose.orientation.y = float(qy)
-        pose.pose.orientation.z = float(qz)
-        pose.pose.orientation.w = float(qw)
+        pose.pose.orientation.x = qx
+        pose.pose.orientation.y = qy
+        pose.pose.orientation.z = qz
+        pose.pose.orientation.w = qw
 
         self.get_logger().info(
             f"Moving to pose in {self.base_frame}: "
-            f"xyz={self.target_xyz}, quat_xyzw={[qx, qy, qz, qw]}"
+            f"xyz={self.target_xyz}, rpy={self.target_rpy} rad, quat_xyzw={[qx, qy, qz, qw]}"
         )
 
         if self.execute_motion:
-            # Depending on pymoveit2 version, this may be move_to_pose / move_to_pose_stamped
-            if hasattr(self.moveit2, "move_to_pose"):
-                self.moveit2.move_to_pose(pose.pose)
-            elif hasattr(self.moveit2, "move_to_pose_stamped"):
-                self.moveit2.move_to_pose_stamped(pose)
-            else:
-                raise RuntimeError("pymoveit2 MoveIt2 does not expose a move_to_pose method in this version.")
-
+            self.moveit2.move_to_pose_stamped(pose)
             self.moveit2.wait_until_executed()
             self.get_logger().info("Motion finished.")
 

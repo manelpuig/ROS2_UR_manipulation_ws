@@ -48,7 +48,7 @@ class UR5ePickPlaceViaIK(Node):
     """
 
     def __init__(self):
-        super().__init__("ur5e_pick_place_via_ik")
+        super().__init__("ur5e_pick_place")
 
         # ---- General
         self.declare_parameter("group_name", "ur_manipulator")

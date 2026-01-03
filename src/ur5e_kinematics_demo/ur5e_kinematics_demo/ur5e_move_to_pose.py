@@ -2,7 +2,11 @@
 import math
 import rclpy
 from rclpy.node import Node
+
 from geometry_msgs.msg import PoseStamped
+from sensor_msgs.msg import JointState
+from moveit_msgs.srv import GetPositionIK
+
 from pymoveit2 import MoveIt2
 
 UR5E_JOINTS = [
@@ -14,8 +18,15 @@ UR5E_JOINTS = [
     "wrist_3_joint",
 ]
 
+
 def quat_from_rpy_zyx(roll: float, pitch: float, yaw: float):
-    # R = Rz(yaw) * Ry(pitch) * Rx(roll)
+    """
+    Convention:
+      R = Rz(yaw) * Ry(pitch) * Rx(roll)
+    (Matrix multiplication YPR, equivalent to geometric roll->pitch->yaw.)
+
+    Returns quaternion in ROS order: (qx, qy, qz, qw).
+    """
     cy = math.cos(yaw * 0.5)
     sy = math.sin(yaw * 0.5)
     cp = math.cos(pitch * 0.5)
@@ -29,81 +40,153 @@ def quat_from_rpy_zyx(roll: float, pitch: float, yaw: float):
     qz = cr * cp * sy - sr * sp * cy
     return float(qx), float(qy), float(qz), float(qw)
 
-class UR5eMoveToPoseMin(Node):
+
+class UR5eMoveToPoseViaIK(Node):
+    """
+    Deterministic workflow:
+      Pose goal -> /compute_ik -> joint goal -> MoveIt2 move_to_configuration -> execute.
+    """
+
     def __init__(self):
         super().__init__("ur5e_move_to_pose")
 
-        self.declare_parameter("group_name", "ur_manipulator")
-        self.declare_parameter("base_frame", "base_link")
-        self.declare_parameter("ee_frame", "tool0")
-
+        # --- Pose target
         self.declare_parameter("target_xyz", [0.35, 0.00, 0.45])
         self.declare_parameter("target_rpy", [0.0, 0.0, 0.0])  # roll,pitch,yaw [rad]
 
+        # --- IK settings
+        self.declare_parameter("group_name", "ur_manipulator")
+        self.declare_parameter("ik_link", "tool0")
+        self.declare_parameter(
+            "seed_joints",
+            [0.0, -math.pi / 2.0, math.pi / 2.0, 0.0, math.pi / 2.0, 0.0],
+        )
+        self.declare_parameter("ik_timeout_sec", 0.2)
+
+        # --- Motion settings
         self.declare_parameter("max_velocity", 0.3)
         self.declare_parameter("max_acceleration", 0.3)
         self.declare_parameter("execute", True)
 
-        self.group_name = str(self.get_parameter("group_name").value)
-        self.base_frame = str(self.get_parameter("base_frame").value)
-        self.ee_frame = str(self.get_parameter("ee_frame").value)
+        # --- Optional: print IK joints for debugging/teaching
+        self.declare_parameter("print_joints", False)
 
         self.target_xyz = [float(x) for x in self.get_parameter("target_xyz").value]
         self.target_rpy = [float(x) for x in self.get_parameter("target_rpy").value]
 
-        self.execute_motion = bool(self.get_parameter("execute").value)
+        self.group_name = str(self.get_parameter("group_name").value)
+        self.ik_link = str(self.get_parameter("ik_link").value)
+        self.seed_joints = [float(x) for x in self.get_parameter("seed_joints").value]
+        self.ik_timeout = float(self.get_parameter("ik_timeout_sec").value)
+
         self.max_velocity = float(self.get_parameter("max_velocity").value)
         self.max_acceleration = float(self.get_parameter("max_acceleration").value)
+        self.execute_motion = bool(self.get_parameter("execute").value)
+        self.print_joints = bool(self.get_parameter("print_joints").value)
 
+        # --- IK service client
+        self.ik_client = self.create_client(GetPositionIK, "/compute_ik")
+
+        # --- MoveIt2 (joint execution)
         self.moveit2 = MoveIt2(
             node=self,
             joint_names=UR5E_JOINTS,
-            base_link_name=self.base_frame,
-            end_effector_name=self.ee_frame,
+            base_link_name="base_link",
+            end_effector_name=self.ik_link,
             group_name=self.group_name,
         )
         self.moveit2.max_velocity = self.max_velocity
         self.moveit2.max_acceleration = self.max_acceleration
 
-        # Run once
-        self.create_timer(0.1, self.run_once)
         self._done = False
+        self.create_timer(0.1, self._run_once)
 
-    def run_once(self):
+    def _run_once(self):
         if self._done:
             return
         self._done = True
 
-        pose = PoseStamped()
-        pose.header.frame_id = self.base_frame
-        pose.header.stamp = self.get_clock().now().to_msg()
-        pose.pose.position.x, pose.pose.position.y, pose.pose.position.z = self.target_xyz
+        # 1) Wait for IK service
+        if not self.ik_client.wait_for_service(timeout_sec=5.0):
+            self.get_logger().error("Service /compute_ik not available. Start MoveIt first.")
+            rclpy.shutdown()
+            return
 
+        # 2) Build pose target (PoseStamped is the correct concept)
         roll, pitch, yaw = self.target_rpy
         qx, qy, qz, qw = quat_from_rpy_zyx(roll, pitch, yaw)
+
+        pose = PoseStamped()
+        pose.header.frame_id = "base_link"
+        pose.header.stamp = self.get_clock().now().to_msg()
+        pose.pose.position.x, pose.pose.position.y, pose.pose.position.z = self.target_xyz
         pose.pose.orientation.x = qx
         pose.pose.orientation.y = qy
         pose.pose.orientation.z = qz
         pose.pose.orientation.w = qw
 
         self.get_logger().info(
-            f"Goal pose: xyz={self.target_xyz}, rpy={self.target_rpy}, quat_xyzw={[qx,qy,qz,qw]}"
+            f"Pose goal (via IK): xyz={self.target_xyz}, rpy={self.target_rpy}, quat_xyzw={[qx, qy, qz, qw]}"
         )
 
-        if self.execute_motion:
-            # Your pymoveit2 has move_to_pose(), so use it directly.
-            self.moveit2.move_to_pose(pose.pose)
-            self.moveit2.wait_until_executed()
-            self.get_logger().info("Execution finished.")
-        else:
-            self.get_logger().info("execute:=false -> not moving.")
+        # 3) Build IK request
+        req = GetPositionIK.Request()
+        req.ik_request.group_name = self.group_name
+        req.ik_request.ik_link_name = self.ik_link
+        req.ik_request.pose_stamped = pose
+        req.ik_request.timeout.sec = int(self.ik_timeout)
+        req.ik_request.timeout.nanosec = int((self.ik_timeout - int(self.ik_timeout)) * 1e9)
+
+        seed = JointState()
+        seed.header = pose.header
+        seed.name = UR5E_JOINTS
+        seed.position = self.seed_joints
+        req.ik_request.robot_state.joint_state = seed
+
+        # 4) Call IK asynchronously
+        future = self.ik_client.call_async(req)
+        future.add_done_callback(self._on_ik)
+
+    def _on_ik(self, future):
+        try:
+            res = future.result()
+        except Exception as e:
+            self.get_logger().error(f"IK service call failed: {e}")
+            rclpy.shutdown()
+            return
+
+        if res.error_code.val != res.error_code.SUCCESS:
+            self.get_logger().error(f"IK failed, error code: {res.error_code.val}")
+            rclpy.shutdown()
+            return
+
+        sol = res.solution.joint_state
+        name_to_pos = {n: p for n, p in zip(sol.name, sol.position)}
+        joint_goal = [float(name_to_pos[j]) for j in UR5E_JOINTS]
+
+        if self.print_joints:
+            self.get_logger().info("IK joint goal (UR5e order):")
+            for n, v in zip(UR5E_JOINTS, joint_goal):
+                self.get_logger().info(f"  {n}: {v:.4f} rad")
+
+        if not self.execute_motion:
+            self.get_logger().info("execute:=false -> exiting without motion.")
+            rclpy.shutdown()
+            return
+
+        self.get_logger().info("Executing IK joint goal via MoveIt2...")
+        self.moveit2.move_to_configuration(joint_goal)
+        self.moveit2.wait_until_executed()
+        self.get_logger().info("Execution finished.")
 
         rclpy.shutdown()
 
+
 def main():
     rclpy.init()
-    node = UR5eMoveToPoseMin()
+    node = UR5eMoveToPoseViaIK()
     rclpy.spin(node)
+
 
 if __name__ == "__main__":
     main()

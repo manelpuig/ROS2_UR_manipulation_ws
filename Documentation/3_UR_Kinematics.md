@@ -31,6 +31,13 @@ colcon build --symlink-install
 source install/setup.bash
 ```
 
+Is good practice to kill remaining process before starting a new moveit2 instance:
+````shell
+cd ~/Ros2_UR_manipulation_ws
+chmod +x kill_ur_sim_moveit.sh
+./kill_ur_sim_moveit.sh
+````
+
 ---
 
 ### Forward kinematics
@@ -73,7 +80,7 @@ ros2 launch ur5e_kinematics_demo ur5e_sim_moveit.launch.py ur_type:=ur5e use_sim
 Compute FK and move for a desired pose:
 
 ```bash
-ros2 launch ur5e_kinematics_demo ur5e_inverse_kinematics.launch.py target_xyz:="[0.4, 0.0, 0.3]" target_rpy:="[0.0, 3.14159, 0.0]" execute:=true
+ros2 launch ur5e_kinematics_demo ur5e_inverse_kinematics.launch.py target_xyz:="[0.4, 0.0, 0.2]" target_rpy:="[1.8, 0.0, 1.57]" execute:=true
 ```
 > You have to install
 

@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+#!/usr/bin/env python3
 import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import JointState
@@ -7,8 +8,8 @@ from pymoveit2 import MoveIt2
 from geometry_msgs.msg import TransformStamped
 import tf2_ros
 
-# User preference: spatialmath.base for transforms
-from spatialmath.base import q2r, r2rpy
+# ROS-friendly transformations (no SciPy dependency)
+from tf_transformations import euler_from_quaternion
 
 
 class UR5eMoveJoints(Node):
@@ -77,10 +78,14 @@ class UR5eMoveJoints(Node):
     def _get_ee_pose(self):
         """
         Returns:
-          (p, q_xyzw, rpy_rad) where:
+          (p, q_xyzw, rpy_rad)
             p = (x, y, z)
             q_xyzw = (qx, qy, qz, qw)
             rpy_rad = (roll, pitch, yaw) in radians
+
+        Note:
+          tf_transformations.euler_from_quaternion expects [x, y, z, w]
+          and returns (roll, pitch, yaw) using the standard ROS convention.
         """
         t0 = self.get_clock().now()
         while rclpy.ok():
@@ -93,20 +98,18 @@ class UR5eMoveJoints(Node):
                     self.ee_frame,
                     rclpy.time.Time(),  # latest available
                 )
+
                 tr = tf.transform.translation
                 rot = tf.transform.rotation
 
                 p = (float(tr.x), float(tr.y), float(tr.z))
                 q_xyzw = (float(rot.x), float(rot.y), float(rot.z), float(rot.w))
 
-                # spatialmath.base.q2r expects quaternion as [w, x, y, z]
-                R = q2r([q_xyzw[3], q_xyzw[0], q_xyzw[1], q_xyzw[2]])
-                rpy = r2rpy(R, unit="rad", order="zyx")  # returns (roll, pitch, yaw)
+                roll, pitch, yaw = euler_from_quaternion(q_xyzw)  # (r, p, y)
 
-                return p, q_xyzw, (float(rpy[0]), float(rpy[1]), float(rpy[2]))
+                return p, q_xyzw, (float(roll), float(pitch), float(yaw))
 
             except Exception:
-                # Wait up to wait_tf_sec for TF to become available
                 if (self.get_clock().now() - t0).nanoseconds * 1e-9 > self.wait_tf_sec:
                     raise TimeoutError(
                         f"Timed out waiting for TF {self.base_frame} -> {self.ee_frame}"
@@ -144,7 +147,7 @@ class UR5eMoveJoints(Node):
             self.get_logger().info("execute:=false -> exiting without motion.")
             return 0
 
-        # 3) Execute
+        # 2) Execute
         self.get_logger().info("Sending joint configuration to MoveIt2...")
         try:
             self.moveit2.move_to_configuration(self.joints)

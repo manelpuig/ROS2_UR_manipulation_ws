@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
 from launch.substitutions import LaunchConfiguration
@@ -5,84 +6,99 @@ from launch_ros.actions import Node
 
 
 def generate_launch_description():
-
-    # --- General / MoveIt
+    # --- Basic
     group_name = DeclareLaunchArgument("group_name", default_value="ur_manipulator")
-    base_frame = DeclareLaunchArgument("base_frame", default_value="base_link")
-    ee_frame = DeclareLaunchArgument("ee_frame", default_value="tool0")
-    use_sim_time = DeclareLaunchArgument("use_sim_time", default_value="false")
+    ik_link = DeclareLaunchArgument("ik_link", default_value="tool0")
+    execute = DeclareLaunchArgument("execute", default_value="true")
 
-    # --- Pick / Place target poses (position + orientation)
-    # Use RPY by default, but you can extend to quaternion like in move_to_pose if needed.
-    pick_xyz = DeclareLaunchArgument("pick_xyz", default_value="[0.45, 0.10, 0.12]")
-    pick_rpy = DeclareLaunchArgument("pick_rpy", default_value="[0.0, 3.14159, 0.0]")
-
-    place_xyz = DeclareLaunchArgument("place_xyz", default_value="[0.35, -0.25, 0.12]")
-    place_rpy = DeclareLaunchArgument("place_rpy", default_value="[0.0, 3.14159, 0.0]")
-
-    # --- Offsets (meters)
-    pregrasp_z = DeclareLaunchArgument("pregrasp_z", default_value="0.12")
-    approach_z = DeclareLaunchArgument("approach_z", default_value="0.08")   # not used if you go directly to grasp pose
-    lift_z = DeclareLaunchArgument("lift_z", default_value="0.12")
-
-    preplace_z = DeclareLaunchArgument("preplace_z", default_value="0.12")
-    descend_z = DeclareLaunchArgument("descend_z", default_value="0.08")    # not used if you go directly to place pose
-    retreat_z = DeclareLaunchArgument("retreat_z", default_value="0.10")
-
-    # --- Motion limits
+    # --- Motion
     max_velocity = DeclareLaunchArgument("max_velocity", default_value="0.25")
     max_acceleration = DeclareLaunchArgument("max_acceleration", default_value="0.25")
 
-    # --- Execution flags
-    execute = DeclareLaunchArgument("execute", default_value="true")
+    # --- IK
+    ik_timeout_sec = DeclareLaunchArgument("ik_timeout_sec", default_value="0.3")
+    avoid_collisions = DeclareLaunchArgument("avoid_collisions", default_value="true")
 
-    # --- Gripper integration (simple knobs; your node can use these to call services/actions)
-    # Leave them empty for now; later you can pass the real service/action names.
-    gripper_open_srv = DeclareLaunchArgument("gripper_open_srv", default_value="")
-    gripper_close_srv = DeclareLaunchArgument("gripper_close_srv", default_value="")
-    sleep_gripper_s = DeclareLaunchArgument("sleep_gripper_s", default_value="0.5")
+    seed_mode = DeclareLaunchArgument(
+        "seed_mode",
+        default_value="last_goal",
+        description="IK seed mode: fixed | last_goal",
+    )
 
-    # --- Optional perception input (future-proof)
-    # If enable_object_pose_sub:=true, your node can subscribe to object_pose_topic
-    # and override pick pose dynamically.
-    enable_object_pose_sub = DeclareLaunchArgument("enable_object_pose_sub", default_value="false")
-    object_pose_topic = DeclareLaunchArgument("object_pose_topic", default_value="/object_pose")
+    # --- Home first (known starting posture)
+    use_home_first = DeclareLaunchArgument("use_home_first", default_value="true")
+
+    # A common UR5e "ready" posture in many examples/sims.
+    # If you already have a preferred one, keep it and align pick/place around it.
+    home_joints = DeclareLaunchArgument(
+        "home_joints",
+        default_value='[0.0, -1.57, 1.57, -1.57, -1.57, 0.0]',
+        description="Home joints executed before the sequence (UR5e joint order).",
+    )
+
+    # Seed should be close to HOME to bias IK toward that branch
+    seed_joints = DeclareLaunchArgument(
+        "seed_joints",
+        default_value=LaunchConfiguration("home_joints"),
+        description="Initial IK seed joints (typically same as home_joints).",
+    )
+
+    # --- Pick & Place geometry (coherent with HOME)
+    # Conservative "front workspace" positions in base_link:
+    # - x in [0.35..0.50]
+    # - y small (symmetric)
+    # - z above ground/table (adjust if you have a table collision object)
+    pick_xyz = DeclareLaunchArgument(
+        "pick_xyz",
+        default_value='[0.45, 0.15, 0.20]',
+        description="Pick position [x,y,z] in base_link [m].",
+    )
+    place_xyz = DeclareLaunchArgument(
+        "place_xyz",
+        default_value='[0.45, -0.15, 0.20]',
+        description="Place position [x,y,z] in base_link [m].",
+    )
+
+    # Approach/lift (keep vertical moves to simplify)
+    z_approach = DeclareLaunchArgument("z_approach", default_value="0.12")
+    z_lift = DeclareLaunchArgument("z_lift", default_value="0.14")
+
+    # --- Orientation: tool0 looking "down"
+    # Use pitch ~ 3.10 rad instead of pi to avoid edge/singularity-like numerical issues.
+    # RPY here is interpreted in the node with R = Rz(yaw) * Ry(pitch) * Rx(roll).
+    target_rpy = DeclareLaunchArgument(
+        "target_rpy",
+        default_value='[0.0, 3.10, 0.0]',
+        description="Tool orientation as RPY [rad]. Downward tool: pitch≈3.10 instead of pi.",
+    )
+
+    # Teaching/visualization
+    sleep_sec_between_steps = DeclareLaunchArgument("sleep_sec_between_steps", default_value="0.3")
 
     node = Node(
         package="ur5e_kinematics_demo",
-        executable="ur5e_pick_place_exe",
-        name="ur5e_pick_place",
+        executable="ur5e_pick_place_via_ik_exe",
+        name="ur5e_pick_place_via_ik",
         output="screen",
         parameters=[
             {
                 "group_name": LaunchConfiguration("group_name"),
-                "base_frame": LaunchConfiguration("base_frame"),
-                "ee_frame": LaunchConfiguration("ee_frame"),
-                "use_sim_time": LaunchConfiguration("use_sim_time"),
-
-                "pick_xyz": LaunchConfiguration("pick_xyz"),
-                "pick_rpy": LaunchConfiguration("pick_rpy"),
-                "place_xyz": LaunchConfiguration("place_xyz"),
-                "place_rpy": LaunchConfiguration("place_rpy"),
-
-                "pregrasp_z": LaunchConfiguration("pregrasp_z"),
-                "approach_z": LaunchConfiguration("approach_z"),
-                "lift_z": LaunchConfiguration("lift_z"),
-                "preplace_z": LaunchConfiguration("preplace_z"),
-                "descend_z": LaunchConfiguration("descend_z"),
-                "retreat_z": LaunchConfiguration("retreat_z"),
-
+                "ik_link": LaunchConfiguration("ik_link"),
+                "execute": LaunchConfiguration("execute"),
                 "max_velocity": LaunchConfiguration("max_velocity"),
                 "max_acceleration": LaunchConfiguration("max_acceleration"),
-
-                "execute": LaunchConfiguration("execute"),
-
-                "gripper_open_srv": LaunchConfiguration("gripper_open_srv"),
-                "gripper_close_srv": LaunchConfiguration("gripper_close_srv"),
-                "sleep_gripper_s": LaunchConfiguration("sleep_gripper_s"),
-
-                "enable_object_pose_sub": LaunchConfiguration("enable_object_pose_sub"),
-                "object_pose_topic": LaunchConfiguration("object_pose_topic"),
+                "ik_timeout_sec": LaunchConfiguration("ik_timeout_sec"),
+                "avoid_collisions": LaunchConfiguration("avoid_collisions"),
+                "seed_mode": LaunchConfiguration("seed_mode"),
+                "seed_joints": LaunchConfiguration("seed_joints"),
+                "use_home_first": LaunchConfiguration("use_home_first"),
+                "home_joints": LaunchConfiguration("home_joints"),
+                "pick_xyz": LaunchConfiguration("pick_xyz"),
+                "place_xyz": LaunchConfiguration("place_xyz"),
+                "z_approach": LaunchConfiguration("z_approach"),
+                "z_lift": LaunchConfiguration("z_lift"),
+                "target_rpy": LaunchConfiguration("target_rpy"),
+                "sleep_sec_between_steps": LaunchConfiguration("sleep_sec_between_steps"),
             }
         ],
     )
@@ -90,34 +106,22 @@ def generate_launch_description():
     return LaunchDescription(
         [
             group_name,
-            base_frame,
-            ee_frame,
-            use_sim_time,
-
-            pick_xyz,
-            pick_rpy,
-            place_xyz,
-            place_rpy,
-
-            pregrasp_z,
-            approach_z,
-            lift_z,
-            preplace_z,
-            descend_z,
-            retreat_z,
-
+            ik_link,
+            execute,
             max_velocity,
             max_acceleration,
-
-            execute,
-
-            gripper_open_srv,
-            gripper_close_srv,
-            sleep_gripper_s,
-
-            enable_object_pose_sub,
-            object_pose_topic,
-
+            ik_timeout_sec,
+            avoid_collisions,
+            seed_mode,
+            use_home_first,
+            home_joints,
+            seed_joints,
+            pick_xyz,
+            place_xyz,
+            z_approach,
+            z_lift,
+            target_rpy,
+            sleep_sec_between_steps,
             node,
         ]
     )

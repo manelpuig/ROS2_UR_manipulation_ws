@@ -86,6 +86,11 @@ ros2 launch ur5e_kinematics_demo ur5e_inverse_kinematics.launch.py target_xyz:="
 
 ### Go to Pose
 
+The minimal proposed solution is based on a node that:
+- converts the target pose into a quaternion, 
+- calls MoveIt’s /compute_ik service to get a joint solution, 
+- and then executes that joint goal with move_to_configuration()
+
 Using Gazebo and MoveIt for simulation:
 
 ```bash
@@ -102,7 +107,26 @@ ros2 launch ur5e_kinematics_demo ur5e_move_to_pose.launch.py target_xyz:="[0.45,
 python3 -m pip install --user spatialmath-python
 ````
 
-Pick and Place
+### Pick and Place
+
+This program is configured with:
+- The robot first moves to a known home joint configuration.
+
+- Each pick-and-place step is defined as a target pose (position + orientation).
+
+- For every pose:
+
+  - MoveIt’s /compute_ik service is called to compute joint angles.
+
+  - The solution is seeded with joints close to the current posture to keep the same IK branch.
+
+  - The joint goal is executed with move_to_configuration().
+
+- The tool orientation is set to look downwards using
+pitch ≈ 3.10 rad (instead of π) to avoid numerical edge cases.
+
+- Pick and place poses are chosen close to the home posture to ensure feasibility and smooth motion.
+
   ```bash
-  ros2 launch ur5e_kinematics_demo pick_place.launch.py pick_xyz:="[0.45, 0.10, 0.12]" place_xyz:="[0.35, -0.25, 0.12]"
-  ```
+  ros2 launch ur5e_kinematics_demo ur5e_pick_place.launch.py execute:=true sleep_sec_between_steps:=0.5
+  ````

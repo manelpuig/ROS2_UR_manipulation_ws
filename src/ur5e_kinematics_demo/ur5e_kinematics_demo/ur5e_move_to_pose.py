@@ -19,8 +19,8 @@ UR5E_JOINTS = [
 
 def quat_from_rpy_zyx(roll: float, pitch: float, yaw: float):
     """
-    R = Rz(yaw) * Ry(pitch) * Rx(roll)   (matrix multiplication order YPR)
-    Equivalent to geometric rotation order RPY (roll -> pitch -> yaw).
+    Matrix multiplication order (YPR): R = Rz(yaw) * Ry(pitch) * Rx(roll)
+    Geometric rotation order (RPY): roll -> pitch -> yaw
 
     Returns (qx, qy, qz, qw) in ROS order (x,y,z,w).
     """
@@ -35,16 +35,10 @@ def quat_from_rpy_zyx(roll: float, pitch: float, yaw: float):
     qx = sr * cp * cy - cr * sp * sy
     qy = cr * sp * cy + sr * cp * sy
     qz = cr * cp * sy - sr * sp * cy
-
     return float(qx), float(qy), float(qz), float(qw)
 
 
 class UR5eMoveToPose(Node):
-    """
-    Minimal node to move UR5e end-effector to a target pose using MoveIt2.
-    Uses ONLY PoseStamped API (move_to_pose_stamped) for frame-safe teaching.
-    """
-
     def __init__(self):
         super().__init__("ur5e_move_to_pose")
 
@@ -88,15 +82,40 @@ class UR5eMoveToPose(Node):
         self.moveit2.max_velocity = self.max_velocity
         self.moveit2.max_acceleration = self.max_acceleration
 
-        # Enforce PoseStamped API only (your requested constraint)
-        if not hasattr(self.moveit2, "move_to_pose_stamped"):
+        # Cache which API we have
+        self._has_pose_stamped = hasattr(self.moveit2, "move_to_pose_stamped")
+        self._has_pose = hasattr(self.moveit2, "move_to_pose")
+
+        if not (self._has_pose_stamped or self._has_pose):
             raise RuntimeError(
-                "This pymoveit2 version does not provide move_to_pose_stamped(). "
-                "Update pymoveit2 or relax the constraint to allow move_to_pose()."
+                "This pymoveit2 MoveIt2 object exposes neither move_to_pose_stamped() nor move_to_pose()."
             )
+
+        self.get_logger().info(
+            "MoveIt2 pose API: "
+            + ("move_to_pose_stamped available" if self._has_pose_stamped else "move_to_pose_stamped NOT available")
+            + " | "
+            + ("move_to_pose available" if self._has_pose else "move_to_pose NOT available")
+        )
 
         self._done = False
         self.create_timer(0.1, self._run_once)
+
+    def _send_pose_goal(self, pose_stamped: PoseStamped):
+        """
+        Single entry point for pose goals.
+        - Prefer PoseStamped if supported.
+        - Fallback to Pose (pose_stamped.pose) if the installed pymoveit2 is older.
+        """
+        if self._has_pose_stamped:
+            self.moveit2.move_to_pose_stamped(pose_stamped)
+            return
+
+        # Fallback (older pymoveit2)
+        self.get_logger().warn(
+            "pymoveit2 does not support move_to_pose_stamped(); using move_to_pose(pose) fallback."
+        )
+        self.moveit2.move_to_pose(pose_stamped.pose)
 
     def _run_once(self):
         if self._done:
@@ -125,7 +144,7 @@ class UR5eMoveToPose(Node):
         )
 
         if self.execute_motion:
-            self.moveit2.move_to_pose_stamped(pose)
+            self._send_pose_goal(pose)
             self.moveit2.wait_until_executed()
             self.get_logger().info("Motion finished.")
 

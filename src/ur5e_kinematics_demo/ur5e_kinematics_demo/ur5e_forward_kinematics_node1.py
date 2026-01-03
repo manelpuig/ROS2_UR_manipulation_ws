@@ -4,12 +4,6 @@ from rclpy.node import Node
 from sensor_msgs.msg import JointState
 from pymoveit2 import MoveIt2
 
-from geometry_msgs.msg import TransformStamped
-import tf2_ros
-
-# User preference: spatialmath.base for transforms
-from spatialmath.base import q2r, r2rpy
-
 
 class UR5eMoveJoints(Node):
     def __init__(self):
@@ -27,11 +21,6 @@ class UR5eMoveJoints(Node):
         )
         self.declare_parameter("wait_joint_states_sec", 10.0)
 
-        # TF parameters
-        self.declare_parameter("base_frame", "base_link")
-        self.declare_parameter("ee_frame", "tool0")
-        self.declare_parameter("wait_tf_sec", 5.0)
-
         self.joints = [float(v) for v in self.get_parameter("joints").value]
         self.group_name = str(self.get_parameter("group_name").value)
         self.execute = bool(self.get_parameter("execute").value)
@@ -40,17 +29,9 @@ class UR5eMoveJoints(Node):
         self.fjt_action = str(self.get_parameter("follow_joint_traj_action").value)
         self.wait_js = float(self.get_parameter("wait_joint_states_sec").value)
 
-        self.base_frame = str(self.get_parameter("base_frame").value)
-        self.ee_frame = str(self.get_parameter("ee_frame").value)
-        self.wait_tf_sec = float(self.get_parameter("wait_tf_sec").value)
-
         # Joint states gate
         self._have_js = False
         self.create_subscription(JointState, "/joint_states", self._js_cb, 10)
-
-        # TF listener (to read current EE pose from TF)
-        self._tf_buffer = tf2_ros.Buffer()
-        self._tf_listener = tf2_ros.TransformListener(self._tf_buffer, self)
 
         joint_names = [
             "shoulder_pan_joint",
@@ -64,8 +45,8 @@ class UR5eMoveJoints(Node):
         self.moveit2 = MoveIt2(
             node=self,
             joint_names=joint_names,
-            base_link_name=self.base_frame,
-            end_effector_name=self.ee_frame,
+            base_link_name="base_link",
+            end_effector_name="tool0",
             group_name=self.group_name,
         )
         self.moveit2.max_velocity = self.max_velocity
@@ -73,56 +54,6 @@ class UR5eMoveJoints(Node):
 
     def _js_cb(self, _msg: JointState):
         self._have_js = True
-
-    def _get_ee_pose(self):
-        """
-        Returns:
-          (p, q_xyzw, rpy_rad) where:
-            p = (x, y, z)
-            q_xyzw = (qx, qy, qz, qw)
-            rpy_rad = (roll, pitch, yaw) in radians
-        """
-        t0 = self.get_clock().now()
-        while rclpy.ok():
-            # Keep spinning so TF messages are processed
-            rclpy.spin_once(self, timeout_sec=0.05)
-
-            try:
-                tf: TransformStamped = self._tf_buffer.lookup_transform(
-                    self.base_frame,
-                    self.ee_frame,
-                    rclpy.time.Time(),  # latest available
-                )
-                tr = tf.transform.translation
-                rot = tf.transform.rotation
-
-                p = (float(tr.x), float(tr.y), float(tr.z))
-                q_xyzw = (float(rot.x), float(rot.y), float(rot.z), float(rot.w))
-
-                # spatialmath.base.q2r expects quaternion as [w, x, y, z]
-                R = q2r([q_xyzw[3], q_xyzw[0], q_xyzw[1], q_xyzw[2]])
-                rpy = r2rpy(R, unit="rad", order="zyx")  # returns (roll, pitch, yaw)
-
-                return p, q_xyzw, (float(rpy[0]), float(rpy[1]), float(rpy[2]))
-
-            except Exception:
-                # Wait up to wait_tf_sec for TF to become available
-                if (self.get_clock().now() - t0).nanoseconds * 1e-9 > self.wait_tf_sec:
-                    raise TimeoutError(
-                        f"Timed out waiting for TF {self.base_frame} -> {self.ee_frame}"
-                    )
-
-    def _log_ee_pose(self, label: str):
-        try:
-            p, q_xyzw, rpy = self._get_ee_pose()
-            self.get_logger().info(
-                f"{label} EE pose in '{self.base_frame}' -> '{self.ee_frame}': "
-                f"p=[{p[0]:.4f}, {p[1]:.4f}, {p[2]:.4f}] m, "
-                f"q(xyzw)=[{q_xyzw[0]:.5f}, {q_xyzw[1]:.5f}, {q_xyzw[2]:.5f}, {q_xyzw[3]:.5f}], "
-                f"rpy=[{rpy[0]:.4f}, {rpy[1]:.4f}, {rpy[2]:.4f}] rad"
-            )
-        except Exception as e:
-            self.get_logger().warn(f"{label} Could not read EE pose from TF: {e}")
 
     def run_once(self):
         self.get_logger().info(f"Target joints (rad): {self.joints}")
@@ -137,9 +68,7 @@ class UR5eMoveJoints(Node):
 
         self.get_logger().info("Joint states are available now.")
 
-        # Optional: log current EE pose before motion
-        self._log_ee_pose("BEFORE")
-
+        # 2) Check FollowJointTrajectory action exists (key for Gazebo execution)
         if not self.execute:
             self.get_logger().info("execute:=false -> exiting without motion.")
             return 0
@@ -154,10 +83,6 @@ class UR5eMoveJoints(Node):
             return 130
 
         self.get_logger().info("Motion finished.")
-
-        # Log obtained EE pose after motion
-        self._log_ee_pose("AFTER")
-
         return 0
 
 

@@ -79,18 +79,7 @@ ros2 launch ur5e_kinematics_demo ur5e_inverse_kinematics.launch.py target_xyz:="
 
 ### Go to Pose
 
-Using Gazebo for simulation:
-```bash
-ros2 launch ur_simulation_gazebo ur_sim_control.launch.py ur_type:=ur5e use_sim_time:=true
-```
-Start MoveIt:
-
-```bash
-ros2 launch ur_moveit_config ur_moveit.launch.py ur_type:=ur5e use_sim_time:=true
-```
-**Improvement**
-
-You can construct a unic launch file for Gazebo and MoveIt (ur5e_sim_moveit.launch.py)
+Using Gazebo and MoveIt for simulation:
 
 ```bash
 ros2 launch ur5e_kinematics_demo ur5e_sim_moveit.launch.py ur_type:=ur5e use_sim_time:=true
@@ -99,9 +88,14 @@ ros2 launch ur5e_kinematics_demo ur5e_sim_moveit.launch.py ur_type:=ur5e use_sim
 Compute FK and move for a desired pose:
 
 ```bash
-ros2 launch ur5e_kinematics_demo ur5e_inverse_kinematics.launch.py target_xyz:="[0.4, 0.0, 0.3]" target_rpy:="[0.0, 3.14159, 0.0]" execute:=true
+ros2 launch ur5e_kinematics_demo ur5e_move_to_pose.launch.py target_xyz:="[0.45, 0.10, 0.25]" target_rpy:="[0.0, 3.14159, 0.0]" execute:=true
 ```
 > You have to install `spatialmath` lib:
 ````python
 python3 -m pip install --user spatialmath-python
 ````
+
+Pick and Place
+  ```bash
+  ros2 launch ur5e_kinematics_demo pick_place.launch.py pick_xyz:="[0.45, 0.10, 0.12]" place_xyz:="[0.35, -0.25, 0.12]"
+  ```

@@ -12,27 +12,36 @@ from ament_index_python.packages import get_package_share_directory
 
 def _build(context, *args, **kwargs):
     pkg_share = get_package_share_directory("ur5e_kinematics_demo")
-    cfg = os.path.join(pkg_share, "config", "ur5e_pick_place.yaml")
+    cfg_path = os.path.join(pkg_share, "config", "ur5e_pick_place.yaml")
 
-    data = yaml.safe_load(open(cfg, "r"))
+    data = yaml.safe_load(open(cfg_path, "r"))
     common = data["common"]
     steps = data["steps"]
 
     nodes = []
-    for i, s in enumerate(steps, start=1):
-        params = {**common, "target_xyz": s["target_xyz"], "target_rpy": s["target_rpy"]}
-        nodes.append((
-            Node(
-                package="ur5e_kinematics_demo",
-                executable="ur5e_move_to_pose_exe",
-                name=f'ur5e_move_{s["name"]}',
-                output="screen",
-                parameters=[params],
-            ),
-            float(s.get("sleep_after", 0.5)),
-        ))
+    for s in steps:
+        params = {
+            **common,
+            "target_xyz": s["target_xyz"],
+            "target_rpy": s["target_rpy"],
+        }
+
+        # --- Only addition requested: per-step seed_joints
+        if "seed_joints" in s:
+            params["seed_joints"] = s["seed_joints"]
+
+        node = Node(
+            package="ur5e_kinematics_demo",
+            executable="ur5e_move_to_pose_exe",
+            name=f'ur5e_move_{s["name"]}',
+            output="screen",
+            parameters=[params],
+        )
+
+        nodes.append((node, float(s.get("sleep_after", 0.5))))
 
     actions = [nodes[0][0]]
+
     for (cur, dt), (nxt, _) in zip(nodes[:-1], nodes[1:]):
         actions.append(
             RegisterEventHandler(

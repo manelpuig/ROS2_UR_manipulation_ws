@@ -23,9 +23,7 @@ def quat_from_rpy_zyx(roll: float, pitch: float, yaw: float):
     """
     Convention:
       R = Rz(yaw) * Ry(pitch) * Rx(roll)
-    (Matrix multiplication YPR, equivalent to geometric roll->pitch->yaw.)
-
-    Returns quaternion in ROS order: (qx, qy, qz, qw).
+    Returns quaternion (qx, qy, qz, qw).
     """
     cy = math.cos(yaw * 0.5)
     sy = math.sin(yaw * 0.5)
@@ -41,18 +39,23 @@ def quat_from_rpy_zyx(roll: float, pitch: float, yaw: float):
     return float(qx), float(qy), float(qz), float(qw)
 
 
-class UR5eMoveToPoseViaIK(Node):
+class UR5ePickPlaceSimple(Node):
     """
-    Deterministic workflow:
-      Pose goal -> /compute_ik -> joint goal -> MoveIt2 move_to_configuration -> execute.
+    Simple, deterministic pick&place:
+      For each step:
+        Pose goal -> /compute_ik -> joint goal -> MoveIt2 move_to_configuration -> wait
+      Seed is updated after each step (seed = last IK solution).
     """
 
     def __init__(self):
-        super().__init__("ur5e_move_to_pose")
+        super().__init__("ur5e_pick_place")
 
-        # --- Pose target
-        self.declare_parameter("target_xyz", [0.35, 0.00, 0.45])
-        self.declare_parameter("target_rpy", [0.0, 0.0, 0.0])  # roll,pitch,yaw [rad]
+        # --- Pick/place params
+        self.declare_parameter("pick_xyz", [0.45, 0.15, 0.20])
+        self.declare_parameter("place_xyz", [0.35, -0.15, 0.20])
+        self.declare_parameter("z_approach", 0.12)
+        self.declare_parameter("z_lift", 0.12)
+        self.declare_parameter("target_rpy", [0.0, 3.1, 0.0])  # roll,pitch,yaw [rad]
 
         # --- IK settings
         self.declare_parameter("group_name", "ur_manipulator")
@@ -67,11 +70,13 @@ class UR5eMoveToPoseViaIK(Node):
         self.declare_parameter("max_velocity", 0.3)
         self.declare_parameter("max_acceleration", 0.3)
         self.declare_parameter("execute", True)
-
-        # --- Optional: print IK joints for debugging/teaching
+        self.declare_parameter("sleep_sec_between_steps", 0.5)
         self.declare_parameter("print_joints", False)
 
-        self.target_xyz = [float(x) for x in self.get_parameter("target_xyz").value]
+        self.pick_xyz = [float(x) for x in self.get_parameter("pick_xyz").value]
+        self.place_xyz = [float(x) for x in self.get_parameter("place_xyz").value]
+        self.z_approach = float(self.get_parameter("z_approach").value)
+        self.z_lift = float(self.get_parameter("z_lift").value)
         self.target_rpy = [float(x) for x in self.get_parameter("target_rpy").value]
 
         self.group_name = str(self.get_parameter("group_name").value)
@@ -82,6 +87,7 @@ class UR5eMoveToPoseViaIK(Node):
         self.max_velocity = float(self.get_parameter("max_velocity").value)
         self.max_acceleration = float(self.get_parameter("max_acceleration").value)
         self.execute_motion = bool(self.get_parameter("execute").value)
+        self.sleep_sec = float(self.get_parameter("sleep_sec_between_steps").value)
         self.print_joints = bool(self.get_parameter("print_joints").value)
 
         # --- IK service client
@@ -101,92 +107,20 @@ class UR5eMoveToPoseViaIK(Node):
         self._done = False
         self.create_timer(0.1, self._run_once)
 
-    def _run_once(self):
-        if self._done:
-            return
-        self._done = True
+    # -------------------------
+    # Helpers
+    # -------------------------
+    def _sleep_spin(self, seconds: float):
+        """Sleep but keep spinning so callbacks keep flowing."""
+        end = self.get_clock().now().nanoseconds + int(seconds * 1e9)
+        while rclpy.ok() and self.get_clock().now().nanoseconds < end:
+            rclpy.spin_once(self, timeout_sec=0.1)
 
-        # 1) Wait for IK service
-        if not self.ik_client.wait_for_service(timeout_sec=5.0):
-            self.get_logger().error("Service /compute_ik not available. Start MoveIt first.")
-            rclpy.shutdown()
-            return
-
-        # 2) Build pose target (PoseStamped is the correct concept)
-        roll, pitch, yaw = self.target_rpy
+    def _make_pose(self, xyz, rpy) -> PoseStamped:
+        roll, pitch, yaw = rpy
         qx, qy, qz, qw = quat_from_rpy_zyx(roll, pitch, yaw)
 
         pose = PoseStamped()
         pose.header.frame_id = "base_link"
         pose.header.stamp = self.get_clock().now().to_msg()
-        pose.pose.position.x, pose.pose.position.y, pose.pose.position.z = self.target_xyz
-        pose.pose.orientation.x = qx
-        pose.pose.orientation.y = qy
-        pose.pose.orientation.z = qz
-        pose.pose.orientation.w = qw
-
-        self.get_logger().info(
-            f"Pose goal (via IK): xyz={self.target_xyz}, rpy={self.target_rpy}, quat_xyzw={[qx, qy, qz, qw]}"
-        )
-
-        # 3) Build IK request
-        req = GetPositionIK.Request()
-        req.ik_request.group_name = self.group_name
-        req.ik_request.ik_link_name = self.ik_link
-        req.ik_request.pose_stamped = pose
-        req.ik_request.timeout.sec = int(self.ik_timeout)
-        req.ik_request.timeout.nanosec = int((self.ik_timeout - int(self.ik_timeout)) * 1e9)
-
-        seed = JointState()
-        seed.header = pose.header
-        seed.name = UR5E_JOINTS
-        seed.position = self.seed_joints
-        req.ik_request.robot_state.joint_state = seed
-
-        # 4) Call IK asynchronously
-        future = self.ik_client.call_async(req)
-        future.add_done_callback(self._on_ik)
-
-    def _on_ik(self, future):
-        try:
-            res = future.result()
-        except Exception as e:
-            self.get_logger().error(f"IK service call failed: {e}")
-            rclpy.shutdown()
-            return
-
-        if res.error_code.val != res.error_code.SUCCESS:
-            self.get_logger().error(f"IK failed, error code: {res.error_code.val}")
-            rclpy.shutdown()
-            return
-
-        sol = res.solution.joint_state
-        name_to_pos = {n: p for n, p in zip(sol.name, sol.position)}
-        joint_goal = [float(name_to_pos[j]) for j in UR5E_JOINTS]
-
-        if self.print_joints:
-            self.get_logger().info("IK joint goal (UR5e order):")
-            for n, v in zip(UR5E_JOINTS, joint_goal):
-                self.get_logger().info(f"  {n}: {v:.4f} rad")
-
-        if not self.execute_motion:
-            self.get_logger().info("execute:=false -> exiting without motion.")
-            rclpy.shutdown()
-            return
-
-        self.get_logger().info("Executing IK joint goal via MoveIt2...")
-        self.moveit2.move_to_configuration(joint_goal)
-        self.moveit2.wait_until_executed()
-        self.get_logger().info("Execution finished.")
-
-        rclpy.shutdown()
-
-
-def main():
-    rclpy.init()
-    node = UR5eMoveToPoseViaIK()
-    rclpy.spin(node)
-
-
-if __name__ == "__main__":
-    main()
+        pose.pose.position.x = f

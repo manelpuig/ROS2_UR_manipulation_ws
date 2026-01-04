@@ -9,10 +9,10 @@ common:
 steps:
   - name: home
     target_xyz: [0.40, 0.00, 0.45]
-    target_rpy: [0.0, 1.57, 0.0]
+    target_rpy: [0.0, -1.57, 0.0]
     sleep_after: 0.8
 
   - name: pick
     target_xyz: [0.45, -0.10, 0.25]
-    target_rpy: [0.0, 3.1416, 0.0]
+    target_rpy: [0.0, -3.1416, 0.0]
     sleep_after: 0.0

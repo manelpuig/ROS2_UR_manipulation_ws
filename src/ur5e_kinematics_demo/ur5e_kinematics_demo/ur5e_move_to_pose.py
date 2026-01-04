@@ -2,6 +2,7 @@
 import math
 import rclpy
 from rclpy.node import Node
+from rclpy.qos import qos_profile_sensor_data
 
 from geometry_msgs.msg import PoseStamped
 from sensor_msgs.msg import JointState
@@ -23,8 +24,6 @@ def quat_from_rpy_zyx(roll: float, pitch: float, yaw: float):
     """
     Convention:
       R = Rz(yaw) * Ry(pitch) * Rx(roll)
-    (Matrix multiplication YPR, equivalent to geometric roll->pitch->yaw.)
-
     Returns quaternion in ROS order: (qx, qy, qz, qw).
     """
     cy = math.cos(yaw * 0.5)
@@ -43,8 +42,13 @@ def quat_from_rpy_zyx(roll: float, pitch: float, yaw: float):
 
 class UR5eMoveToPoseViaIK(Node):
     """
-    Deterministic workflow:
+    Workflow:
       Pose goal -> /compute_ik -> joint goal -> MoveIt2 move_to_configuration -> execute.
+
+    Seed strategy:
+      - If seed_from_joint_states:=true and /joint_states is available,
+        use the CURRENT robot joint state as IK seed (best to avoid IK branch flips).
+      - Otherwise use seed_joints parameter.
     """
 
     def __init__(self):
@@ -68,9 +72,13 @@ class UR5eMoveToPoseViaIK(Node):
         self.declare_parameter("max_acceleration", 0.3)
         self.declare_parameter("execute", True)
 
-        # --- Optional: print IK joints for debugging/teaching
+        # --- Debug
         self.declare_parameter("print_joints", False)
 
+        # --- NEW: choose seed source
+        self.declare_parameter("seed_from_joint_states", True)
+
+        # Read params
         self.target_xyz = [float(x) for x in self.get_parameter("target_xyz").value]
         self.target_rpy = [float(x) for x in self.get_parameter("target_rpy").value]
 
@@ -83,6 +91,12 @@ class UR5eMoveToPoseViaIK(Node):
         self.max_acceleration = float(self.get_parameter("max_acceleration").value)
         self.execute_motion = bool(self.get_parameter("execute").value)
         self.print_joints = bool(self.get_parameter("print_joints").value)
+
+        self.seed_from_joint_states = bool(self.get_parameter("seed_from_joint_states").value)
+
+        # Cache the latest joint state
+        self._last_js = None
+        self.create_subscription(JointState, "/joint_states", self._js_cb, qos_profile_sensor_data)
 
         # --- IK service client
         self.ik_client = self.create_client(GetPositionIK, "/compute_ik")
@@ -101,6 +115,9 @@ class UR5eMoveToPoseViaIK(Node):
         self._done = False
         self.create_timer(0.1, self._run_once)
 
+    def _js_cb(self, msg: JointState):
+        self._last_js = msg
+
     def _run_once(self):
         if self._done:
             return
@@ -112,7 +129,7 @@ class UR5eMoveToPoseViaIK(Node):
             rclpy.shutdown()
             return
 
-        # 2) Build pose target (PoseStamped is the correct concept)
+        # 2) Build pose target (in base_link)
         roll, pitch, yaw = self.target_rpy
         qx, qy, qz, qw = quat_from_rpy_zyx(roll, pitch, yaw)
 
@@ -137,10 +154,20 @@ class UR5eMoveToPoseViaIK(Node):
         req.ik_request.timeout.sec = int(self.ik_timeout)
         req.ik_request.timeout.nanosec = int((self.ik_timeout - int(self.ik_timeout)) * 1e9)
 
+        # Choose seed: joint_states (preferred) or configured seed_joints
+        seed_positions = list(self.seed_joints)
+
+        if self.seed_from_joint_states and self._last_js is not None:
+            name_to_pos = dict(zip(self._last_js.name, self._last_js.position))
+            if all(j in name_to_pos for j in UR5E_JOINTS):
+                seed_positions = [float(name_to_pos[j]) for j in UR5E_JOINTS]
+                if self.print_joints:
+                    self.get_logger().info("Using /joint_states as IK seed (UR5e order).")
+
         seed = JointState()
         seed.header = pose.header
         seed.name = UR5E_JOINTS
-        seed.position = self.seed_joints
+        seed.position = seed_positions
         req.ik_request.robot_state.joint_state = seed
 
         # 4) Call IK asynchronously

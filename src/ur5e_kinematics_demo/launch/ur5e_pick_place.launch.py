@@ -14,7 +14,9 @@ def _build(context, *args, **kwargs):
     pkg_share = get_package_share_directory("ur5e_kinematics_demo")
     cfg_path = os.path.join(pkg_share, "config", "ur5e_pick_place.yaml")
 
-    data = yaml.safe_load(open(cfg_path, "r"))
+    with open(cfg_path, "r") as f:
+        data = yaml.safe_load(f)
+
     common = data["common"]
     steps = data["steps"]
 
@@ -26,7 +28,8 @@ def _build(context, *args, **kwargs):
             "target_rpy": s["target_rpy"],
         }
 
-        # --- Only addition requested: per-step seed_joints
+        if "seed_from_joint_states" in s:
+            params["seed_from_joint_states"] = s["seed_from_joint_states"]
         if "seed_joints" in s:
             params["seed_joints"] = s["seed_joints"]
 

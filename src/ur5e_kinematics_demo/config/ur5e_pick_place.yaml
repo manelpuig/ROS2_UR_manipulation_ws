@@ -9,19 +9,19 @@ common:
 steps:
   - name: home
     target_xyz: [0.40, 0.00, 0.55]
-    target_rpy: [0.0, 3.1416, 0.0]
-    # colze amunt (elbow > 0) i valors dins [-pi, pi]
-    seed_joints: [0.00, -1.50, 1.80, -1.85, 1.57, 0.00]
-    sleep_after: 3.0
+    target_rpy: [3.14, 0.0, -1.57]
+    seed_from_joint_states: false
+    seed_joints: [0.00, -1.80, 1.80, 3.0, -1.57, 0.00]
+    sleep_after: 1.0
 
   - name: pick
     target_xyz: [0.55, -0.30, 0.22]
-    target_rpy: [0.0, 3.1416, 0.0]
-    seed_joints: [-0.55, -1.55, 1.85, -1.90, 1.57, 0.00]
-    sleep_after: 3.0
+    target_rpy: [3.14, 0.0, -1.57]
+    seed_from_joint_states: true
+    sleep_after: 0.7
 
   - name: place
     target_xyz: [0.55, 0.30, 0.22]
-    target_rpy: [0.0, 3.1416, 0.0]
-    seed_joints: [0.55, -1.55, 1.85, -1.90, 1.57, 0.00]
+    target_rpy: [3.14, 0.0, -1.57]
+    seed_from_joint_states: true
     sleep_after: 0.0

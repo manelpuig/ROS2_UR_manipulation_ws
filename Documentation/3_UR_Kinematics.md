@@ -55,7 +55,7 @@ ros2 launch ur_moveit_config ur_moveit.launch.py ur_type:=ur5e use_sim_time:=tru
 Compute FK and move for a given joint configuration:
 
 ```bash
-ros2 launch ur5e_kinematics_demo ur5e_forward_kinematics.launch.py joints:="[0.0, -1.57, 1.57, 0.0, 1.57, 0.0]" execute:=true
+ros2 launch ur5e_kinematics_demo ur5e_forward_kinematics.launch.py joints:="[0.00, -1.80, 1.80, 3.14, -1.57, 0.00]" execute:=true
 ```
 
 ### Inverse kinematics

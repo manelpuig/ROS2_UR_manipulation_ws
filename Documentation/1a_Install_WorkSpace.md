@@ -63,30 +63,21 @@ cd ROS2_UR_manipulation_ws
 ```
 ## 4. Install the UR ROS2 environment
 
-You will need to execute the `install_ur_moveit_gazebo_humble.sh` script to install the needed environment for Universal Robots packages and moveit2 current version.
+You can use:
+- Docker container
+- Ubuntu22 PC 
 
-```bash
-cd ROS2_UR_manipulation_ws
-chmod +x install_ur_moveit_gazebo_humble.sh
-./install_ur_moveit_gazebo_humble.sh --ws ~/ROS2_UR_manipulation_ws
-```
-> Take care if ws is `~/ROS2_UR_manipulation_ws` or `~/Desktop\ROS2_UR_manipulation_ws`
+### Ubuntu PC
 
-> In TheConstruct environment every time you want to work with, you will have to reinstall the system environment with (10min):
+We have prepared an installation file `setup_ur_env.sh`:
 ````shell
-./install_ur_moveit_gazebo_humble.sh --ws ~/ROS2_UR_manipulation_ws --fix-ros-repo
-````
-> In a new PC Ubuntu you will have to install once the environment (10min):
-````shell
-./install_ur_moveit_gazebo_humble.sh --ws ~/Desktop/ROS2_UR_manipulation_ws --do-full-upgrade
+cd Ros2_UR_manipulation_ws
+./setup_ur_env.sh
 ````
 
-This will:
-- Set the Gazebo keys 
-- Install the UR packages by APT
-- Install the current version of moveit if there is another older installation
-- Install dependencies for UR repositories you cloned
-- Build the workspace
+### Docker container
+
+We have prepared an image
 
 ## 5. Launch the UR5e bringup
 

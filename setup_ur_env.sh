@@ -30,26 +30,61 @@ echo "🔧 Installing ROS2 simulation & MoveIt dependencies..."
 sudo apt update -y || true
 
 sudo apt install -y \
-  python3-setuptools \
-  python3-pip \
-  ros-humble-ur \
-  ros-humble-ur-description \
-  ros-humble-ur-msgs \
-  ros-humble-ur-robot-driver \
-  ros-humble-ur-bringup \
-  ros-humble-ur-moveit-config \
-  ros-humble-moveit \
-  ros-humble-moveit-ros \
-  ros-humble-moveit-planners-ompl \
-  ros-humble-ros2-control \
-  ros-humble-ros2-controllers \
-  ros-humble-controller-manager \
-  ros-humble-controller-interface \
-  ros-humble-realtime-tools \
-  gazebo \
-  ros-humble-gazebo-ros \
-  ros-humble-gazebo-ros-pkgs \
-  ros-humble-gazebo-ros2-control || true
+    # X11 graphical support
+    x11-apps \
+    libgl1-mesa-glx \
+    libgl1-mesa-dri \
+    libglu1-mesa \
+    mesa-utils \
+    libqt5x11extras5 \
+    libxkbcommon-x11-0 \
+    libx11-6 \
+    libxext6 \
+    libxrender1 \
+    libxtst6 \
+    \
+    # Dev tools
+    build-essential \
+    cmake \
+    python3-colcon-common-extensions \
+    python3-pip \
+    python3-rosdep \
+    unzip \
+    git \
+    iputils-ping \
+    \
+    # ROS 2 add-ons
+    ros-humble-rviz2 \
+    ros-humble-joint-state-publisher \
+    ros-humble-joint-state-publisher-gui \
+    ros-humble-gazebo-ros-pkgs \
+    ros-humble-gazebo-plugins \
+    ros-humble-gazebo-ros2-control \
+    ros-humble-nav2-bringup \
+    ros-humble-nav2-simple-commander \
+    ros-humble-tf-transformations \
+    ros-humble-cartographer-ros \
+    ros-humble-teleop-twist-keyboard \
+    ros-humble-rmw-cyclonedds-cpp \
+    ros-humble-rosbridge-server \
+    \
+    # Gazebo Classic (Gazebo 11)
+    gazebo \
+    libgazebo-dev \
+    \
+    # MoveIt 2
+    ros-humble-moveit \
+    ros-humble-moveit-visual-tools \
+    ros-humble-moveit-servo \
+    \
+    # Universal Robots
+    ros-humble-ur-description \
+    ros-humble-ur-moveit-config \
+    ros-humble-ur-robot-driver \
+    \
+    # ros2_control core
+    ros-humble-ros2-control \
+    ros-humble-ros2-controllers || true
 
 
 # =======================================================
@@ -68,6 +103,6 @@ rosdep install --from-paths src --ignore-src -y || true
 # 4. Build the workspace
 # =======================================================
 echo "🔧 Building workspace..."
-colcon build --symlink-install
+colcon build
 
 echo "✅ UR environment ready!"

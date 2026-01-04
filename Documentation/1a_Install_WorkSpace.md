@@ -76,6 +76,10 @@ chmod +x install_ur_moveit_gazebo_humble.sh
 ````shell
 ./install_ur_moveit_gazebo_humble.sh --ws ~/ROS2_UR_manipulation_ws --fix-ros-repo
 ````
+> In a new PC Ubuntu you will have to install once the environment (10min):
+````shell
+./install_ur_moveit_gazebo_humble.sh --ws ~/Desktop/ROS2_UR_manipulation_ws --do-full-upgrade
+````
 
 This will:
 - Set the Gazebo keys 

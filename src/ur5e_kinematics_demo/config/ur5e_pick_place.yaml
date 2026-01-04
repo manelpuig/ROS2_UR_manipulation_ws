@@ -1,0 +1,19 @@
+common:
+  execute: true
+  group_name: ur_manipulator
+  ik_link: tool0
+  max_velocity: 0.3
+  max_acceleration: 0.3
+  print_joints: false
+
+# Llista ordenada de passos. Cada pas és UNA execució del mateix executable.
+steps:
+  - name: home
+    target_xyz: [0.35, 0.0, 0.45]
+    target_rpy: [0.0, 0.0, 0.0]
+    sleep_after: 0.8   # espera 0.8s abans de llançar el següent pas
+
+  - name: pick
+    target_xyz: [0.45, 0.15, 0.20]
+    target_rpy: [0.0, 3.1, 0.0]
+    sleep_after: 0.0   # no cal esperar després de l'últim

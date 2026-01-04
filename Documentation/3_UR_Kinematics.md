@@ -128,5 +128,5 @@ pitch ≈ 3.10 rad (instead of π) to avoid numerical edge cases.
 - Pick and place poses are chosen close to the home posture to ensure feasibility and smooth motion.
 
   ```bash
-  ros2 launch ur5e_kinematics_demo ur5e_pick_place.launch.py execute:=true sleep_sec_between_steps:=0.5
+  ros2 launch ur5e_kinematics_demo ur5e_pick_place.launch.py
   ````

@@ -8,13 +8,26 @@ common:
 
 steps:
   - name: home
-    target_xyz: [0.0, -0.30, 0.60]
-    target_rpy: [1.57, 0.0, 0.0]
-    seed_joints: [6.0, -1.0, -2.0, 0.0, 1.0, 3.0]
-    sleep_after: 5.0
+    # HOME frontal, centrat, alt
+    target_xyz: [0.45, 0.00, 0.45]
+    # Mateixa orientació que pick/place (eina cap avall)
+    target_rpy: [0.0, 3.1416, 0.0]
+    # Seed neutre i estable per mantenir una branca "normal"
+    seed_joints: [0.00, -1.57, 1.57, -1.57, 1.57, 0.00]
+    sleep_after: 0.8
 
   - name: pick
-    target_xyz: [-0.40, -0.40, 0.20]
-    target_rpy: [3.1, 0.0, 0.0]
-    seed_joints: [6.0, -1.0, -2.0, 0.0, 1.0, 3.0]
+    # PICK frontal amb Y més gran (dreta, -Y)
+    target_xyz: [0.55, -0.25, 0.22]
+    target_rpy: [0.0, 3.1416, 0.0]
+    # Seed: shoulder_pan lleugerament cap a -Y, colze/canell consistents
+    seed_joints: [-0.45, -1.75, 2.05, -1.90, 1.57, 0.00]
+    sleep_after: 0.5
+
+  - name: place
+    # PLACE frontal amb Y més gran (esquerra, +Y)
+    target_xyz: [0.55, 0.25, 0.22]
+    target_rpy: [0.0, 3.1416, 0.0]
+    # Seed simètric cap a +Y
+    seed_joints: [0.45, -1.75, 2.05, -1.90, 1.57, 0.00]
     sleep_after: 0.0

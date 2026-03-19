@@ -9,7 +9,7 @@ This document summarizes the necessary steps to connect a **real Universal Robot
 Ensure the PC and UR5e are on the same LAN.
 
 Example:
-- PC IP: `192.168.1.55`
+- PC IP: `192.168.1.45`
 - UR5e IP: `192.168.1.4`
 
 Verify connection:
@@ -19,9 +19,16 @@ ping 192.168.1.4
 
 ---
 
-## 2. Install the Required URCap on the UR5e
+## 2. Install the Required modulus on the UR5e
 
-### 2.1 Download the URCap
+There are requirements on Polyscope software version and URcap external control
+
+### 2.1. Polyscope 
+To properly work on ros2 Humble, the Polyscope version has to be higher than 5.9.5. We have installed the 5.25.1 version.
+
+The file we have to download is: https://www.universal-robots.com/download/software-ur-series/update/latest-polyscope-software-update-sw-5251-ur-series-e-series/
+
+### 2.2. URCap
 Download:
 ```
 externalcontrol-1.0.urcap
@@ -29,7 +36,7 @@ externalcontrol-1.0.urcap
 From:
 https://github.com/UniversalRobots/Universal_Robots_ROS2_Driver/tree/humble/ur_robot_driver/resources
 
-### 2.2 Install via Teach Pendant
+### Install via Teach Pendant
 1. Copy `.urcap` file to USB (FAT32)
 2. On the teach pendant:
    - **Settings → System → URCaps → Manage**
@@ -72,7 +79,7 @@ source ~/ROS2_UR_manipulation_ws/install/setup.bash
 
 Run the UR driver:
 ```bash
-ros2 launch ur_robot_driver ur_control.launch.py   ur_type:=ur5e   robot_ip:=192.168.1.4   launch_rviz:=false
+ros2 launch ur_robot_driver ur_control.launch.py ur_type:=ur5e robot_ip:=192.168.1.4 launch_rviz:=false
 ```
 
 ---

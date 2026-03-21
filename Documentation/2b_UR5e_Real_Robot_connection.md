@@ -17,18 +17,16 @@ Verify connection:
 ping 192.168.1.4
 ```
 
----
-
-## 2. Install the Required modulus on the UR5e
+## 2. UR5e robot Configuration
 
 There are requirements on Polyscope software version and URcap external control
 
-### 2.1. Polyscope 
+### 2.1. Polyscope software
 To properly work on ros2 Humble, the Polyscope version has to be higher than 5.9.5. We have installed the 5.25.1 version.
 
 The file we have to download is: https://www.universal-robots.com/download/software-ur-series/update/latest-polyscope-software-update-sw-5251-ur-series-e-series/
 
-### 2.2. URCap
+### 2.2. URCap externalcontrol
 Download:
 ```
 externalcontrol-1.0.urcap
@@ -36,65 +34,89 @@ externalcontrol-1.0.urcap
 From:
 https://github.com/UniversalRobots/Universal_Robots_ROS2_Driver/tree/humble/ur_robot_driver/resources
 
-### Install via Teach Pendant
-1. Copy `.urcap` file to USB (FAT32)
-2. On the teach pendant:
+**Install using Teach Pendant**
+- Copy `.urcap` file to USB (FAT32)
+- On the teach pendant:
    - **Settings → System → URCaps → Manage**
    - **Add** the file from USB  
-3. Reboot the controller when prompted.
+- Reboot the controller when prompted.
 
-### 2.3 Configure External Control
-```
-Installation → URCaps → External Control
-```
+**Configuration**
 
-Set:
-- **Control PC IP:** (e.g., `192.168.1.55`)
-- **Port:** `50002`
-
----
-
-## 3. Running the External Control Program
-
-1. Load program:
-   ```
-   external_control.urp
-   ```
-2. Press **Play**  
-
-3. Robot displays:
+The configuration is based on the PC IP the robot has to connect to. 
+- We specify it on `Installation` menu:
     ```
-    Waiting for incoming RTDE connection…
+    Installation → URCaps → External Control
     ```
 
----
+- Set:
+    - **Control PC IP:** (e.g., `192.168.1.55`)
+    - **Port:** `50002`
 
-## 4. Configure the PC
+## 2.3. ROS2 External Control Program
+We first create a new program `ROS2_external_control.urp` including only the `External Control` instruction configured before
 
-Source ROS:
-```bash
-source /opt/ros/humble/setup.bash
-source ~/ROS2_UR_manipulation_ws/install/setup.bash
-```
+## 3. PC Configuration
 
-Run the UR driver:
-```bash
-ros2 launch ur_robot_driver ur_control.launch.py ur_type:=ur5e robot_ip:=192.168.1.4 launch_rviz:=false
-```
+The PC is an Ubuntu22 with ROS2 Humble and we have to install different modulus:
+````bash
+sudo apt install ros-humble-ur-robot-driver
+sudo apt install ros-humble-ros2controlcli
+sudo apt install ros-humble-ur-calibration
+````
 
----
+## 4. Quick start
 
-## 5. Verify Joint States
+To properly start working on the UR5e with ROS2 Humble we have to:
+- First on PC:
+    - Source ROS:
+        ```bash
+        source /opt/ros/humble/setup.bash
+        source ~/ROS2_UR_manipulation_ws/install/setup.bash
+        ```
+    - Run the UR driver:
+        ```bash
+        ros2 launch ur_robot_driver ur_control.launch.py ur_type:=ur5e robot_ip:=192.168.1.4 launch_rviz:=false
+        ```
+- Now on `Teach Pendant`:
+    - Load program: **ROS2_external_control.urp**
+    - Press **Play**  
 
-```bash
-ros2 topic echo /joint_states
-```
+## 5. Verify Joint States and run a first movement
 
-If messages stream → good connection.
+- Open a new terminal and type:
+    ```bash
+    ros2 topic list
+    ros2 topic echo /joint_states
+    ```
+- If messages stream → good connection.
+- The good topic to publish a new target joint is: `/scaled_joint_trajectory_controller/joint_trajectory`
+- Publish in a new terminal a target joint positions very close to the actual joint positions:
+    ````bash
+    ros2 topic pub --once /scaled_joint_trajectory_controller/joint_trajectory trajectory_msgs/msg/JointTrajectory "{
+        joint_names: ['shoulder_pan_joint', 'shoulder_lift_joint', 'elbow_joint', 'wrist_1_joint', 'wrist_2_joint', 'wrist_3_joint'],
+        points: [
+            {
+            positions: [0.35, -2.3987, 2.5271, -3.2593, -0.5174, 3.1289],
+            time_from_start: {sec: 4, nanosec: 0}
+            }
+        ]
+    }"
+    ````
+- Publish in a new terminal a target joint positions to come back to the previous joint positions:
+    ````bash
+    ros2 topic pub --once /scaled_joint_trajectory_controller/joint_trajectory trajectory_msgs/msg/JointTrajectory "{
+        joint_names: ['shoulder_pan_joint', 'shoulder_lift_joint', 'elbow_joint', 'wrist_1_joint', 'wrist_2_joint', 'wrist_3_joint'],
+        points: [
+            {
+            positions: [0.5149, -2.3987, 2.5271, -3.2593, -0.5174, 3.1289],
+            time_from_start: {sec: 4, nanosec: 0}
+            }
+        ]
+    }"
+    ````
 
----
-
-## 6. Run MoveIt
+## 6. Use MoveIt
 
 ```bash
 ros2 launch ur_moveit_config ur_moveit.launch.py ur_type:=ur5e
@@ -132,19 +154,3 @@ def main():
 if __name__ == "__main__":
     main()
 ```
-
----
-
-## Summary
-
-### On the UR5e:
-- Install URCap  
-- Configure External Control  
-- Run `external_control.urp`
-
-### On the PC:
-- Run the UR driver  
-- Run MoveIt  
-
-System ready for real-robot control.
-

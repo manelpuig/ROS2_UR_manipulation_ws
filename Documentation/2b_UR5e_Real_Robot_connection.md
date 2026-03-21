@@ -119,12 +119,15 @@ To properly start working on the UR5e with ROS2 Humble we have to:
 ## 6. Use MoveIt
 
 ```bash
-ros2 launch ur_moveit_config ur_moveit.launch.py ur_type:=ur5e
+ros2 launch ur_moveit_config ur_moveit.launch.py ur_type:=ur5e launch_rviz:=true
 ```
 
 Use RViz's *MotionPlanning* panel to plan and execute motions.
 
----
+You can also do it in a unique instruction:
+````bash
+ros2 launch ur_robot_driver ur_moveit.launch.py ur_type:=ur5e robot_ip:=192.168.1.4 launch_rviz:=true
+````
 
 ## 7. Example Python Script
 

@@ -23,6 +23,8 @@ setup(
     license='MIT',
     entry_points={
         'console_scripts': [
+            'ur5e_joint_target_exec = ur5e_kinematics_demo.ur5e_joint_target:main',
+            'ur5e_joint_targets_exec = ur5e_kinematics_demo.ur5e_joint_targets:main',
             'ur5e_forward_kinematics_node = ur5e_kinematics_demo.ur5e_forward_kinematics_node:main',
             'ur5e_inverse_kinematics_node = ur5e_kinematics_demo.ur5e_inverse_kinematics_node:main',
             'ur5e_move_to_pose_exe = ur5e_kinematics_demo.ur5e_move_to_pose:main',

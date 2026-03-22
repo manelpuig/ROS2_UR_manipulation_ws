@@ -65,6 +65,11 @@ sudo apt install ros-humble-ros2controlcli
 sudo apt install ros-humble-ur-calibration
 ````
 
+Also is needed other packages for proper Kinematics operation:
+````bash
+apt install ros-humble-moveit
+````
+
 ## 4. Quick start
 
 To properly start working on the UR5e with ROS2 Humble we have to:
@@ -115,10 +120,36 @@ To properly start working on the UR5e with ROS2 Humble we have to:
         ]
     }"
     ````
+## 6. Example Python Script
+
+We have created a node to publish a joint target or a set of joint targets
+
+a) one joint target
+
+- run in a new terminal:
+    ````bash
+    ros2 launch ur5e_kinematics_demo ur5e_joint_target.launch.py
+    ````
+- You can specify the joint target values:
+    ````bash
+    ros2 launch ur5e_kinematics_demo ur5e_joint_target.launch.py target_deg:="[0.0,-90.0,90.0,0.0,90.0,0.0]"
+    ````
+b) multiple joint targets: we define an array where each row has a last value for the accumulated time from the start
+
+- run in a new terminal:
+    ````bash
+    ros2 launch ur5e_kinematics_demo ur5e_joint_targets.launch.py
+    ````
+- You can specify the joint target values:
+    ````bash
+    ros2 launch ur5e_kinematics_demo ur5e_joint_target.launch.py targets_deg:="[[0.0,-90.0,90.0,0.0,90.0,0.0,2.0],[30.0,-60.0,100.0,-20.0,80.0,0.0,5.0],[10.0,-80.0,95.0,-10.0,85.0,15.0,8.0]]"
+    ````
 
 ## 6. Use MoveIt
 
+This module 
 ```bash
+ros2 launch ur_robot_driver ur_control.launch.py ur_type:=ur5e robot_ip:=192.168.1.4 launch_rviz:=false
 ros2 launch ur_moveit_config ur_moveit.launch.py ur_type:=ur5e launch_rviz:=true
 ```
 
@@ -128,32 +159,3 @@ You can also do it in a unique instruction:
 ````bash
 ros2 launch ur_robot_driver ur_moveit.launch.py ur_type:=ur5e robot_ip:=192.168.1.4 launch_rviz:=true
 ````
-
-## 7. Example Python Script
-
-```python
-import rclpy
-from rclpy.node import Node
-from moveit.planning import MoveItPy
-
-def main():
-    rclpy.init()
-    moveit = MoveItPy(node_name="moveit_py")
-    arm = moveit.get_planning_component("ur_manipulator")
-
-    target = {
-        "shoulder_pan_joint": 0.0,
-        "shoulder_lift_joint": -1.57,
-        "elbow_joint": 1.57,
-        "wrist_1_joint": 0.0,
-        "wrist_2_joint": 1.57,
-        "wrist_3_joint": 0.0
-    }
-
-    arm.set_goal_state(joint_positions=target)
-    plan = arm.plan()
-    arm.execute(plan)
-
-if __name__ == "__main__":
-    main()
-```

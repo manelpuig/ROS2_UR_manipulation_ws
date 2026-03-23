@@ -4,30 +4,54 @@ These are the minimal and clean steps to install and run the UR5e simulation usi
 
 
 Webgraphy:
+- https://docs.universal-robots.com/Universal_Robots_ROS2_Documentation/index.html
 - https://docs.ros.org/en/humble/p/pymoveit2/index.html
 
 ---
 
-## 1. Create a clean workspace
+## 1. Install the UR ROS2 environment
 
-```bash
-mkdir -p ~/ROS2_UR_manipulation_ws/src
-cd ~/ROS2_UR_manipulation_ws
-```
+You can use:
+- Ubuntu22 PC 
+- Docker container
 
-## 2. clone the required repositories
-```bash
-cd ~/ROS2_UR_manipulation_ws/src
-git clone https://github.com/UniversalRobots/Universal_Robots_ROS2_Gazebo_Simulation.git
-git clone https://github.com/UniversalRobots/Universal_Robots_ROS2_Tutorials/.git
-```
-You have to delete the .git folder:
+### Ubuntu PC
 
-```bash
-rm -rf Universal_Robots_ROS2_Gazebo_Simulation/.git
-rm -rf Universal_Robots_ROS2_Tutorials/.git
-```
-This will be done if you clone your forked github repository
+We have prepared an installation file `setup_ur_env.sh`:
+````shell
+cd Ros2_UR_manipulation_ws
+./setup_ur_env.sh
+````
+
+### Docker container
+
+We have prepared an image in Docker Hub: https://hub.docker.com/r/manelpuig/ros2-humble-ub-ur5e/tags
+
+## 2. Create a clean workspace
+
+A Clean workspace is created with all needed packages to perform Gazebo simulation and Real UR5e robot execution.
+- Create a ws
+    ```bash
+    mkdir -p ~/ROS2_UR_manipulation_ws/src
+    cd ~/ROS2_UR_manipulation_ws
+    ```
+
+- Clone the required repositories for Gazebo simulation:
+    ```bash
+    cd ~/ROS2_UR_manipulation_ws/src
+    git clone https://github.com/UniversalRobots/Universal_Robots_ROS2_Gazebo_Simulation.git
+    git clone https://github.com/UniversalRobots/Universal_Robots_ROS2_Tutorials/.git
+    ```
+- You have to delete the .git folder:
+    ```bash
+    rm -rf Universal_Robots_ROS2_Gazebo_Simulation/.git
+    rm -rf Universal_Robots_ROS2_Tutorials/.git
+    ```
+To properly work on UR5e robot manipulation moveit2 stack will be used. Moveit has some usefull APIs in python we can install:
+- moveit_py
+- pymoveit2
+
+The official package is `moveit_py`, but `pymoveit2` is simpler and recommended for beginners.
 
 ## 3. Install `pymoveit` package
 
@@ -53,31 +77,14 @@ Instructions to install:
     git rm --cached src/pymoveit2
     ```
 
-Verify the `.bashrc` file contains::
+- Verify the `.bashrc` file contains::
 
-```bash
-source /opt/ros/humble/setup.bash
-source /usr/share/colcon_argcomplete/hook/colcon-argcomplete.bash
-source ~/ROS2_UR_manipulation_ws/install/setup.bash
-cd ROS2_UR_manipulation_ws
-```
-## 4. Install the UR ROS2 environment
-
-You can use:
-- Docker container
-- Ubuntu22 PC 
-
-### Ubuntu PC
-
-We have prepared an installation file `setup_ur_env.sh`:
-````shell
-cd Ros2_UR_manipulation_ws
-./setup_ur_env.sh
-````
-
-### Docker container
-
-We have prepared an image
+    ```bash
+    source /opt/ros/humble/setup.bash
+    source /usr/share/colcon_argcomplete/hook/colcon-argcomplete.bash
+    source ~/ROS2_UR_manipulation_ws/install/setup.bash
+    cd ROS2_UR_manipulation_ws
+    ```
 
 ## 5. Launch the UR5e bringup
 

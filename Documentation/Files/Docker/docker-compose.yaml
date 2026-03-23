@@ -38,7 +38,7 @@ services:
       # GPU / rendering devices (if needed)
       - /dev/dri:/dev/dri
       # CycloneDDS configuration (PC side)
-      - ./cyclonedds_pc.xml:/config/cyclonedds_pc.xml:ro
+      #- ./cyclonedds_pc.xml:/config/cyclonedds_pc.xml:ro
 
     entrypoint: /entrypoint_pc.sh
     command: sleep infinity

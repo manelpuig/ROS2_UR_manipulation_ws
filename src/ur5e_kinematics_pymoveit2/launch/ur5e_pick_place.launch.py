@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import os
 import yaml
-
+import math
 from launch import LaunchDescription
 from launch.actions import OpaqueFunction, RegisterEventHandler, TimerAction, LogInfo
 from launch.event_handlers import OnProcessExit
@@ -65,8 +65,10 @@ def _build(context, *args, **kwargs):
     nodes = []
     for s in steps:
         step_name = s["name"]
-        xyz = s["target_xyz"]
-        rpy = s["target_rpy"]
+        xyz_mm = s["target_xyz"]
+        xyz = [v / 1000.0 for v in xyz_mm]   # mm → m
+        rpy_deg = s["target_rpy"]
+        rpy = [math.radians(v) for v in rpy_deg]  # deg → rad
 
         params = {
             **common,
@@ -78,7 +80,7 @@ def _build(context, *args, **kwargs):
         if "seed_from_joint_states" in s:
             params["seed_from_joint_states"] = s["seed_from_joint_states"]
         if "seed_joints" in s:
-            params["seed_joints"] = s["seed_joints"]
+            params["seed_joints"] = [math.radians(v) for v in s["seed_joints"]]
 
         node = Node(
             package="ur5e_kinematics_pymoveit2",
@@ -88,7 +90,7 @@ def _build(context, *args, **kwargs):
             parameters=[params],
         )
 
-        nodes.append((step_name, xyz, rpy, s, node, float(s.get("sleep_after", 0.5))))
+        nodes.append((step_name, xyz_mm, rpy_deg, s, node, float(s.get("sleep_after", 0.5))))
 
     actions = []
 

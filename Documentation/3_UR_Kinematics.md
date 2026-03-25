@@ -55,7 +55,7 @@ ros2 launch ur_moveit_config ur_moveit.launch.py ur_type:=ur5e use_sim_time:=tru
 Compute FK and move for a given joint configuration:
 
 ```bash
-ros2 launch ur5e_kinematics_demo ur5e_forward_kinematics.launch.py joints:="[0.00, -1.80, 1.80, 3.14, -1.57, 0.00]" execute:=true
+ros2 launch ur5e_kinematics_demo ur5e_forward_kinematics.launch.py joints:="[0.50, -2.50, 2.80, -3.00, -0.55, 3.00]" execute:=true
 ```
 
 ### Inverse kinematics
@@ -80,7 +80,7 @@ ros2 launch ur5e_kinematics_demo ur5e_sim_moveit.launch.py ur_type:=ur5e use_sim
 Compute FK and move for a desired pose:
 
 ```bash
-ros2 launch ur5e_kinematics_demo ur5e_inverse_kinematics.launch.py target_xyz:="[0.4, 0.0, 0.2]" target_rpy:="[-1.57, 0.0, -1.57]" execute:=true
+ros2 launch ur5e_kinematics_demo ur5e_inverse_kinematics.launch.py target_xyz:="[0.0, -0.4, 0.5]" target_rpy:="[1.57, 0.0, 0.0]" execute:=true
 ```
 > You have to install
 
@@ -100,7 +100,7 @@ ros2 launch ur5e_kinematics_demo ur5e_sim_moveit.launch.py ur_type:=ur5e use_sim
 Compute FK and move for a desired pose:
 
 ```bash
-ros2 launch ur5e_kinematics_demo ur5e_move_to_pose.launch.py target_xyz:="[0.45, 0.10, 0.25]" target_rpy:="[0.0, 3.1, 0.0]" execute:=true
+ros2 launch ur5e_kinematics_demo ur5e_move_to_pose.launch.py target_xyz:="[-0.3, -0.40, 0.1]" target_rpy:="[3.14, 0.0, 0.0]" execute:=true
 ```
 > You have to install `spatialmath` lib:
 ````python

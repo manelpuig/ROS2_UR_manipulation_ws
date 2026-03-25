@@ -43,10 +43,25 @@ ros2 launch ur_simulation_gazebo ur_sim_moveit.launch.py ur_type:=ur5e use_sim_t
 Compute FK and move for a given joint configuration:
 
 ```bash
-ros2 launch ur5e_kinematics_demo ur5e_forward_kinematics.launch.py joints:="[-1.0, -1.5, 2.0, 1.5, -1.0, 0.0]" execute:=true
+ros2 launch ur5e_kinematics_pymoveit2 ur5e_forward_kinematics.launch.py joints:="[1.0, -1.5, 2.0, -3.0, -1.0, 3.0]" execute:=true
 ```
 
 ### Inverse kinematics
+
+It is important to note that:
+- POSE in roboDK is referenced to `base` frame
+- POSE in ROS2 (Gazebo) is referenced to `base_link` frame
+
+UR robots have `base_link` frame 180 deg from `base` frame, then:
+````python
+x_ros  = -x_robodk
+y_ros  = -y_robodk
+z_ros  =  z_robodk
+
+roll_ros = roll_robodk
+pitch_ros = pitch_robodk
+yaw_ros ≈ yaw_robodk + π
+````
 
 Using Gazebo Classic for simulation:
 
@@ -57,7 +72,7 @@ ros2 launch ur_simulation_gazebo ur_sim_moveit.launch.py ur_type:=ur5e use_sim_t
 Compute FK and move for a desired pose:
 
 ```bash
-ros2 launch ur5e_kinematics_demo ur5e_inverse_kinematics.launch.py target_xyz:="[0.0, -0.4, 0.5]" target_rpy:="[1.57, 0.0, 0.0]" seed_joints:="[-1.5, -1.7, 2.2, 1.5, -1.0, -3.14]" execute:=true
+ros2 launch ur5e_kinematics_pymoveit2 ur5e_inverse_kinematics.launch.py target_xyz:="[0.0, 0.4, 0.5]" target_rpy:="[1.57, 0.0, 3.14]" seed_joints:="[1.0, -1.5, 2.0, -3.0, -1.0, 3.0]" execute:=true
 ```
 > It is important to choose proper seed_joints to help moveit to find the desired configuration branch
 

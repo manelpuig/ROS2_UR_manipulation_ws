@@ -1,3 +1,11 @@
+# POSE in ROS2 respect roboDK
+#x_ros  = -x_robodk
+#y_ros  = -y_robodk
+#z_ros  =  z_robodk
+#yaw_ros ≈ yaw_robodk + π
+#roll_ros = roll_robodk
+#pitch_ros = pitch_robodk
+#
 common:
   execute: true
   group_name: ur_manipulator
@@ -8,56 +16,56 @@ common:
 
 steps:
   - name: home_start
-    target_xyz: [0, -400, 500]
-    target_rpy: [180, 0, -90]
+    target_xyz: [0, 400, -500]
+    target_rpy: [90, 0, 180]
     seed_from_joint_states: false
     seed_joints: [30, -130, 140, -180, -30, 180]
     sleep_after: 1.0
 
   - name: approach_pick
-    target_xyz: [-300, -400, 100]
-    target_rpy: [180, 0, 0]
+    target_xyz: [300, 400, 100]
+    target_rpy: [180, 0, 180]
     seed_from_joint_states: true
     sleep_after: 1.0
 
   - name: pick
-    target_xyz: [-300, -400, 25]
-    target_rpy: [180, 0, 0]
+    target_xyz: [300, 400, 25]
+    target_rpy: [180, 0, 180]
     seed_from_joint_states: true
     sleep_after: 1.0
 
   - name: retreat_pick
-    target_xyz: [-300, -400, 100]
-    target_rpy: [180, 0, 0]
+    target_xyz: [300, 400, 100]
+    target_rpy: [180, 0, 180]
     seed_from_joint_states: true
     sleep_after: 1.0
 
   - name: home_middle
-    target_xyz: [0, -400, 500]
-    target_rpy: [180, 0, -90]
+    target_xyz: [0, 400, 500]
+    target_rpy: [90, 0, 180]
     seed_from_joint_states: true
     sleep_after: 1.0
 
   - name: approach_place
-    target_xyz: [300, -400, 100]
-    target_rpy: [180, 0, 0]
+    target_xyz: [-300, 400, 100]
+    target_rpy: [180, 0, 180]
     seed_from_joint_states: true
     sleep_after: 1.0
 
   - name: place
-    target_xyz: [300, -400, 25]
-    target_rpy: [180, 0, 0]
+    target_xyz: [-300, 400, 25]
+    target_rpy: [180, 0, 180]
     seed_from_joint_states: true
     sleep_after: 1.0
 
   - name: retreat_place
-    target_xyz: [300, -400, 100]
-    target_rpy: [180, 0, 0]
+    target_xyz: [-300, 400, 100]
+    target_rpy: [180, 0, 180]
     seed_from_joint_states: true
     sleep_after: 1.0
 
   - name: home_end
-    target_xyz: [0, -400, 500]
-    target_rpy: [180, 0, -90]
+    target_xyz: [0, 400, 500]
+    target_rpy: [90, 0, 180]
     seed_from_joint_states: true
     sleep_after: 1.0

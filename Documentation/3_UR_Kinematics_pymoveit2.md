@@ -11,7 +11,7 @@ Both nodes call the standard MoveIt services `/compute_fk` and `/compute_ik`, so
 
 
 
-## Create the package skeleton
+## Create the package
 
 In your workspace:
 
@@ -36,13 +36,13 @@ source install/setup.bash
 
 Using Gazebo Classic for simulation:
 - UR5e robot without gripper
-```bash
-ros2 launch ur_simulation_gazebo ur_sim_moveit.launch.py ur_type:=ur5e use_sim_time:=true
-```
+  ```bash
+  ros2 launch ur_simulation_gazebo ur_sim_moveit.launch.py ur_type:=ur5e use_sim_time:=true
+  ```
 - UR5e robot with custom gripper 2FG7:
-```bash
-ros2 launch ur_simulation_gazebo ur_sim_moveit.launch.py ur_type:=ur5e description_package:=my_ur_description description_file:=ur_2fg7.urdf.xacro use_sim_time:=true
-```
+  ```bash
+  ros2 launch ur_simulation_gazebo ur_sim_moveit.launch.py ur_type:=ur5e description_package:=my_ur_description description_file:=ur_2fg7.urdf.xacro use_sim_time:=true
+  ```
 Compute FK and move for a given joint configuration:
 
 ```bash
@@ -54,6 +54,9 @@ ros2 launch ur5e_kinematics_pymoveit2 ur5e_forward_kinematics.launch.py joints:=
 It is important to note that:
 - POSE in roboDK is referenced to `base` frame
 - POSE in ROS2 (Gazebo) is referenced to `base_link` frame
+
+![Gazebo_base_link](./Images/gazebo_base_link.png)
+> This POSE corresponds to `zero_angle` in our Real robot ur5e paltform
 
 UR robots have `base_link` frame 180 deg from `base` frame, then:
 ````python

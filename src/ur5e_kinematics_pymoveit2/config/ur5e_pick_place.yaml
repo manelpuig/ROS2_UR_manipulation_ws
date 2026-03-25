@@ -6,10 +6,12 @@
 #roll_ros = roll_robodk
 #pitch_ros = pitch_robodk
 #
+# Tool defined 2FG7! change to ik_link: 2fg7_tcp
 common:
   execute: true
   group_name: ur_manipulator
-  ik_link: tool0
+  #ik_link: tool0
+  ik_link: 2fg7_tcp
   max_velocity: 0.3
   max_acceleration: 0.3
   print_joints: true

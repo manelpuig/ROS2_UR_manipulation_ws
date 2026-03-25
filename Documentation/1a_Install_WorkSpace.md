@@ -47,35 +47,6 @@ A Clean workspace is created with all needed packages to perform Gazebo simulati
     rm -rf Universal_Robots_ROS2_Gazebo_Simulation/.git
     rm -rf Universal_Robots_ROS2_Tutorials/.git
     ```
-To properly work on UR5e robot manipulation moveit2 stack will be used. Moveit has some usefull APIs in python we can install:
-- moveit_py
-- pymoveit2
-
-The official package is `moveit_py`, but `pymoveit2` is simpler and recommended for beginners.
-
-## 3. Install `pymoveit` package
-
-Basic Python interface for MoveIt 2 built on top of ROS 2 actions and services. (https://docs.ros.org/en/humble/p/pymoveit2/index.html
-)
-
-Instructions to install:
-- Clone this repository, install dependencies and build with colcon.
-
-    ```bash
-    # Clone this repository into your favourite ROS 2 workspace
-    git clone https://github.com/AndrejOrsula/pymoveit2.git
-    # Install dependencies
-    rosdep install -y -r -i --rosdistro ${ROS_DISTRO} --from-paths .
-    # Build
-    colcon build --merge-install --symlink-install --cmake-args "-DCMAKE_BUILD_TYPE=Release"
-    ```
-- Delete some folders to sync the ws on remote github
-    ```bash
-    cd ~/Desktop/ROS2_UR_manipulation_ws/src/pymoveit2
-    sudo rm -rf .git
-    cd ~/Desktop/ROS2_UR_manipulation_ws
-    git rm --cached src/pymoveit2
-    ```
 
 - Verify the `.bashrc` file contains::
 

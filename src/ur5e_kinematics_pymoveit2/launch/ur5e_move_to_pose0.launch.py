@@ -1,6 +1,6 @@
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
-from launch.substitutions import LaunchConfiguration, PythonExpression
+from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 
 
@@ -11,58 +11,24 @@ def generate_launch_description():
     base_frame = DeclareLaunchArgument("base_frame", default_value="base_link")
     ee_frame = DeclareLaunchArgument("ee_frame", default_value="tool0")
 
-    # Target position
-    target_xyz_mm = DeclareLaunchArgument(
+    # Target pose: xyz + rpy
+    target_xyz = DeclareLaunchArgument(
         "target_xyz",
-        default_value="[400.0, 0.0, 300.0]",
-        description="Target position [mm] as [x,y,z]",
+        default_value="[0.4, 0.0, 0.3]",
+        description="Target position [m] as [x,y,z] in base_frame",
     )
-
-    target_xyz_m = PythonExpression(
-        [
-            "[x/1000.0 for x in ",
-            LaunchConfiguration("target_xyz"),
-            "]"
-        ]
-    )
-    # Target orientation (NOW IN DEGREES)
-    target_rpy_deg = DeclareLaunchArgument(
+    target_rpy = DeclareLaunchArgument(
         "target_rpy",
-        default_value="[0.0, 180.0, 0.0]",
-        description="Target orientation [deg] as [roll,pitch,yaw]",
+        default_value="[0.0, 3.14159, 0.0]",
+        description="Target orientation [rad] as [roll,pitch,yaw] (XYZ order)",
     )
 
-    # Convert deg → rad
-    target_rpy_rad = PythonExpression(
-        [
-            "[x*3.141592653589793/180.0 for x in ",
-            LaunchConfiguration("target_rpy"),
-            "]"
-        ]
-    )
-
-    # Quaternion mode (optional)
+    # Optional: quaternion mode
     use_quat = DeclareLaunchArgument("use_quat", default_value="false")
-
     target_quat_xyzw = DeclareLaunchArgument(
         "target_quat_xyzw",
         default_value="[0.0, 0.0, 0.0, 1.0]",
-        description="Quaternion [qx,qy,qz,qw]",
-    )
-
-    # Seed joints (IN DEGREES)
-    seed_joints_deg = DeclareLaunchArgument(
-        "seed_joints",
-        default_value="[0.0, -90.0, 90.0, 0.0, 90.0, 0.0]",
-        description="IK seed joints [deg]",
-    )
-
-    seed_joints_rad = PythonExpression(
-        [
-            "[x*3.141592653589793/180.0 for x in ",
-            LaunchConfiguration("seed_joints"),
-            "]"
-        ]
+        description="Quaternion [qx,qy,qz,qw] used if use_quat:=true",
     )
 
     # Motion / runtime
@@ -70,11 +36,6 @@ def generate_launch_description():
     use_sim_time = DeclareLaunchArgument("use_sim_time", default_value="false")
     max_velocity = DeclareLaunchArgument("max_velocity", default_value="0.3")
     max_acceleration = DeclareLaunchArgument("max_acceleration", default_value="0.3")
-
-    seed_from_joint_states = DeclareLaunchArgument(
-        "seed_from_joint_states",
-        default_value="true"
-    )
 
     node = Node(
         package="ur5e_kinematics_pymoveit2",
@@ -86,12 +47,10 @@ def generate_launch_description():
                 "group_name": LaunchConfiguration("group_name"),
                 "base_frame": LaunchConfiguration("base_frame"),
                 "ee_frame": LaunchConfiguration("ee_frame"),
-                "target_xyz": target_xyz_m,
-                "target_rpy": target_rpy_rad,
+                "target_xyz": LaunchConfiguration("target_xyz"),
+                "target_rpy": LaunchConfiguration("target_rpy"),
                 "use_quat": LaunchConfiguration("use_quat"),
                 "target_quat_xyzw": LaunchConfiguration("target_quat_xyzw"),
-                "seed_joints": seed_joints_rad,
-                "seed_from_joint_states": LaunchConfiguration("seed_from_joint_states"),
                 "execute": LaunchConfiguration("execute"),
                 "use_sim_time": LaunchConfiguration("use_sim_time"),
                 "max_velocity": LaunchConfiguration("max_velocity"),
@@ -105,12 +64,10 @@ def generate_launch_description():
             group_name,
             base_frame,
             ee_frame,
-            target_xyz_mm,
-            target_rpy_deg,
+            target_xyz,
+            target_rpy,
             use_quat,
             target_quat_xyzw,
-            seed_joints_deg,
-            seed_from_joint_states,
             execute,
             use_sim_time,
             max_velocity,

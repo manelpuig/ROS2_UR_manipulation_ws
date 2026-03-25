@@ -31,58 +31,35 @@ colcon build --symlink-install
 source install/setup.bash
 ```
 
-Is good practice to kill remaining process before starting a new moveit2 instance:
-````shell
-cd ~/Ros2_UR_manipulation_ws
-chmod +x kill_ur_sim_moveit.sh
-./kill_ur_sim_moveit.sh
-````
-
----
 
 ### Forward kinematics
 
-Using Gazebo for simulation:
-```bash
-ros2 launch ur_simulation_gazebo ur_sim_control.launch.py ur_type:=ur5e use_sim_time:=true
-```
-Start MoveIt:
+Using Gazebo Classic for simulation:
 
 ```bash
-ros2 launch ur_moveit_config ur_moveit.launch.py ur_type:=ur5e use_sim_time:=true
+ros2 launch ur_simulation_gazebo ur_sim_moveit.launch.py ur_type:=ur5e use_sim_time:=true
 ```
 
 Compute FK and move for a given joint configuration:
 
 ```bash
-ros2 launch ur5e_kinematics_demo ur5e_forward_kinematics.launch.py joints:="[0.50, -2.50, 2.80, -3.00, -0.55, 3.00]" execute:=true
+ros2 launch ur5e_kinematics_demo ur5e_forward_kinematics.launch.py joints:="[-1.0, -1.5, 2.0, 1.5, -1.0, 0.0]" execute:=true
 ```
 
 ### Inverse kinematics
 
-Using Gazebo for simulation:
-```bash
-ros2 launch ur_simulation_gazebo ur_sim_control.launch.py ur_type:=ur5e use_sim_time:=true
-```
-Start MoveIt:
+Using Gazebo Classic for simulation:
 
 ```bash
-ros2 launch ur_moveit_config ur_moveit.launch.py ur_type:=ur5e use_sim_time:=true
-```
-**Improvement**
-
-You can construct a unic launch file for Gazebo and MoveIt (ur5e_sim_moveit.launch.py)
-
-```bash
-ros2 launch ur5e_kinematics_demo ur5e_sim_moveit.launch.py ur_type:=ur5e use_sim_time:=true
+ros2 launch ur_simulation_gazebo ur_sim_moveit.launch.py ur_type:=ur5e use_sim_time:=true
 ```
 
 Compute FK and move for a desired pose:
 
 ```bash
-ros2 launch ur5e_kinematics_demo ur5e_inverse_kinematics.launch.py target_xyz:="[0.0, -0.4, 0.5]" target_rpy:="[1.57, 0.0, 0.0]" execute:=true
+ros2 launch ur5e_kinematics_demo ur5e_inverse_kinematics.launch.py target_xyz:="[0.0, -0.4, 0.5]" target_rpy:="[1.57, 0.0, 0.0]" seed_joints:="[-1.5, -1.7, 2.2, 1.5, -1.0, -3.14]" execute:=true
 ```
-> You have to install
+> It is important to choose proper seed_joints to help moveit to find the desired configuration branch
 
 ### Go to Pose
 

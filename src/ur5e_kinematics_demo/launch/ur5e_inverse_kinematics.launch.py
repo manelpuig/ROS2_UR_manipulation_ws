@@ -6,11 +6,11 @@ from launch_ros.actions import Node
 
 def generate_launch_description():
 
-    target_xyz = DeclareLaunchArgument("target_xyz", default_value="[0.4, 0.0, 0.3]")
-    target_rpy = DeclareLaunchArgument("target_rpy", default_value="[0.0, 3.14159, 0.0]")
+    target_xyz = DeclareLaunchArgument("target_xyz", default_value="[0.0, -0.4, 0.5]")
+    target_rpy = DeclareLaunchArgument("target_rpy", default_value="[1.57, 0.0, 0.0]")
     seed_joints = DeclareLaunchArgument(
         "seed_joints",
-        default_value="[0.0, -1.57, 1.57, 0.0, 1.57, 0.0]",
+        default_value="[-1.5, -1.7, 2.2, 1.5, -1.0, -3.14]",
         description="IK seed joint configuration [rad] in UR5e order",
     )
 

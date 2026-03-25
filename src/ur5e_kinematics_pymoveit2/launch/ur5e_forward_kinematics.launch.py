@@ -8,7 +8,7 @@ def generate_launch_description():
 
     joints = DeclareLaunchArgument(
         "joints",
-        default_value="[0.0, -1.57, 1.57, 0.0, 1.57, 0.0]",
+        default_value="[-1.0, -1.5, 2.0, 1.5, -1.0, 0.0]",
         description="Target joint configuration [rad] in UR5e order",
     )
 
@@ -48,7 +48,7 @@ def generate_launch_description():
     )
 
     node = Node(
-        package="ur5e_kinematics_pymoveit2",
+        package="ur5e_kinematics_demo",
         executable="ur5e_forward_kinematics_node",
         name="ur5e_move_joints",
         output="screen",

@@ -53,7 +53,7 @@ def _step_header(step_name, xyz, rpy, step_dict):
 
 
 def _build(context, *args, **kwargs):
-    pkg_share = get_package_share_directory("ur5e_kinematics_demo")
+    pkg_share = get_package_share_directory("ur5e_kinematics_pymoveit2")
     cfg_path = os.path.join(pkg_share, "config", "ur5e_pick_place.yaml")
 
     with open(cfg_path, "r") as f:

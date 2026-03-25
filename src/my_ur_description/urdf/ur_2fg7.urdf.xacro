@@ -102,8 +102,7 @@
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="package://my_ur_description/meshes/2fg7.obj"
-            scale="0.001 0.001 0.001"/>
+        <mesh filename="file://$(find my_ur_description)/meshes/2fg7.stl" scale="0.001 0.001 0.001"/>
       </geometry>
     </visual>
 
@@ -127,7 +126,7 @@
     </inertial>
   </link>
   <gazebo reference="2fg7_base">
-    <material>Gazebo/Red</material>
+    <material>Gazebo/Gray</material>
   </gazebo>
   <joint name="tool0_to_2fg7_base" type="fixed">
     <parent link="tool0"/>

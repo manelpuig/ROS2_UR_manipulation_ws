@@ -35,11 +35,14 @@ source install/setup.bash
 ### Forward kinematics
 
 Using Gazebo Classic for simulation:
-
+- UR5e robot without gripper
 ```bash
 ros2 launch ur_simulation_gazebo ur_sim_moveit.launch.py ur_type:=ur5e use_sim_time:=true
 ```
-
+- UR5e robot with custom gripper 2FG7:
+```bash
+ros2 launch ur_simulation_gazebo ur_sim_moveit.launch.py ur_type:=ur5e description_package:=my_ur_description description_file:=ur_2fg7.urdf.xacro use_sim_time:=true
+```
 Compute FK and move for a given joint configuration:
 
 ```bash

@@ -16,56 +16,58 @@ common:
 
 steps:
   - name: home_start
-    target_xyz: [0, 400, -500]
+    target_xyz: [0, 400, 500]
     target_rpy: [90, 0, 180]
     seed_from_joint_states: false
     seed_joints: [30, -130, 140, -180, -30, 180]
-    sleep_after: 1.0
+    sleep_after: 0.2
 
   - name: approach_pick
     target_xyz: [300, 400, 100]
     target_rpy: [180, 0, 180]
     seed_from_joint_states: true
-    sleep_after: 1.0
+    sleep_after: 0.2
 
   - name: pick
     target_xyz: [300, 400, 25]
     target_rpy: [180, 0, 180]
     seed_from_joint_states: true
-    sleep_after: 1.0
+    sleep_after: 0.2
 
   - name: retreat_pick
     target_xyz: [300, 400, 100]
     target_rpy: [180, 0, 180]
     seed_from_joint_states: true
-    sleep_after: 1.0
+    sleep_after: 0.2
 
   - name: home_middle
     target_xyz: [0, 400, 500]
     target_rpy: [90, 0, 180]
-    seed_from_joint_states: true
-    sleep_after: 1.0
+    seed_from_joint_states: false
+    seed_joints: [30, -130, 140, -180, -30, 180]
+    sleep_after: 0.2
 
   - name: approach_place
     target_xyz: [-300, 400, 100]
     target_rpy: [180, 0, 180]
     seed_from_joint_states: true
-    sleep_after: 1.0
+    sleep_after: 0.2
 
   - name: place
     target_xyz: [-300, 400, 25]
     target_rpy: [180, 0, 180]
     seed_from_joint_states: true
-    sleep_after: 1.0
+    sleep_after: 0.2
 
   - name: retreat_place
     target_xyz: [-300, 400, 100]
     target_rpy: [180, 0, 180]
     seed_from_joint_states: true
-    sleep_after: 1.0
+    sleep_after: 0.2
 
   - name: home_end
     target_xyz: [0, 400, 500]
     target_rpy: [90, 0, 180]
-    seed_from_joint_states: true
-    sleep_after: 1.0
+    seed_from_joint_states: false
+    seed_joints: [30, -130, 140, -180, -30, 180]
+    sleep_after: 0.2

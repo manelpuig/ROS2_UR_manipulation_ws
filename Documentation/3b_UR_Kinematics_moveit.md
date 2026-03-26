@@ -6,6 +6,7 @@ The package contains two nodes:
 
 - `ur5e_forward_kinematics_node` – you specify the 6 joint angles → it computes the end–effector pose.
 - `ur5e_inverse_kinematics_node` – you specify a target pose (x, y, z, roll, pitch, yaw) → it computes one joint solution.
+- `ur5e_move_to_pose` – you specify a target pose → it computes the joint solution and moves the robot.
 
 Both nodes call the standard MoveIt services `/compute_fk` and `/compute_ik`, so **MoveIt’s `move_group` must be running** (e.g., via `ur_moveit_config`).
 
@@ -40,7 +41,7 @@ Instructions to install:
     git rm --cached src/pymoveit2
     ```
 
-## Create the package
+## 2. Create the package
 
 In your workspace:
 
@@ -52,7 +53,7 @@ ros2 pkg create ur5e_kinematics_pymoveit2 --build-type ament_python
 
 This creates a Python-based ROS 2 package.
 
-## Build the workspace
+**Build the workspace**
 
 ```bash
 cd ~/ROS2_UR_manipulation_ws
@@ -62,7 +63,7 @@ source install/setup.bash
 
 ### Forward kinematics
 
-Using Gazebo Classic for simulation:
+Bringup UR5e on Gazebo Classic for simulation:
 - UR5e robot without gripper
   ```bash
   ros2 launch ur_simulation_gazebo ur_sim_moveit.launch.py ur_type:=ur5e use_sim_time:=true
@@ -71,6 +72,13 @@ Using Gazebo Classic for simulation:
   ```bash
   ros2 launch ur_simulation_gazebo ur_sim_moveit.launch.py ur_type:=ur5e description_package:=my_ur_description description_file:=ur_2fg7.urdf.xacro use_sim_time:=true
   ```
+Bringup Real UR5e robot with MoveIt:
+  ```bash
+  ros2 launch ur_robot_driver ur_control.launch.py ur_type:=ur5e robot_ip:=192.168.1.4 launch_rviz:=false
+  ros2 launch ur_moveit_config ur_moveit.launch.py ur_type:=ur5e launch_rviz:=true
+  ```
+  > Propoer controllers are automatically selected by `moveit_config` 
+
 Compute FK and move for a given joint configuration:
 
 ```bash
@@ -97,18 +105,21 @@ pitch_ros = pitch_robodk
 yaw_ros ≈ yaw_robodk + π
 ````
 
-Using Gazebo Classic for simulation:
-
-```bash
-ros2 launch ur_simulation_gazebo ur_sim_moveit.launch.py ur_type:=ur5e use_sim_time:=true
-```
-
+Bring up the UR5e:
+- On Gazebo with MoveIt:
+  ```bash
+  ros2 launch ur_simulation_gazebo ur_sim_moveit.launch.py ur_type:=ur5e use_sim_time:=true
+  ```
+- on Real UR5e robot with MoveIt:
+  ```bash
+  ros2 launch ur_robot_driver ur_control.launch.py ur_type:=ur5e robot_ip:=192.168.1.4 launch_rviz:=false
+  ros2 launch ur_moveit_config ur_moveit.launch.py ur_type:=ur5e launch_rviz:=true
+  ```
 Compute FK and move for a desired pose:
-
-```bash
-ros2 launch ur5e_kinematics_pymoveit2 ur5e_inverse_kinematics.launch.py target_xyz:="[0.0, 0.4, 0.5]" target_rpy:="[1.57, 0.0, 3.14]" seed_joints:="[1.0, -1.5, 2.0, -3.0, -1.0, 3.0]" execute:=true
-```
-> It is important to choose proper seed_joints to help moveit to find the desired configuration branch
+  ```bash
+  ros2 launch ur5e_kinematics_pymoveit2 ur5e_inverse_kinematics.launch.py target_xyz:="[0.0, 0.4, 0.5]" target_rpy:="[1.57, 0.0, 3.14]" seed_joints:="[1.0, -1.5, 2.0, -3.0, -1.0, 3.0]" execute:=true
+  ```
+  > It is important to choose proper seed_joints to help moveit to find the desired configuration branch
 
 ### Go to Pose
 
@@ -117,12 +128,18 @@ The minimal proposed solution is based on a node that:
 - calls MoveIt’s /compute_ik service to get a joint solution, 
 - and then executes that joint goal with move_to_configuration()
 
-Using Gazebo and MoveIt for simulation:
+Bringup UR5e on Gazebo and MoveIt for simulation:
 
 ```bash
 ros2 launch ur_simulation_gazebo ur_sim_moveit.launch.py ur_type:=ur5e use_sim_time:=true
 ```
-
+Bringup Real UR5e robot with MoveIt:
+  ```bash
+  ros2 launch ur_robot_driver ur_control.launch.py ur_type:=ur5e robot_ip:=192.168.1.4 launch_rviz:=false
+  ros2 launch ur_moveit_config ur_moveit.launch.py ur_type:=ur5e launch_rviz:=true
+  ```
+  > Proper controllers are automatically selected by `moveit_config` 
+  
 Compute FK and move for a desired pose:
 
 ```bash

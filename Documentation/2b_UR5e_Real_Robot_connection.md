@@ -2,7 +2,8 @@
 
 This document summarizes the necessary steps to connect a **real Universal Robots UR5e** to a **PC running Ubuntu 22.04 + ROS 2 Humble**, install the required URCaps, configure networking, and control the robot using **MoveIt**.
 
----
+References:
+- [UR5e Driver](https://github.com/UniversalRobots/Universal_Robots_ROS2_Driver/tree/humble)
 
 ## 1. Network Setup
 
@@ -120,42 +121,3 @@ To properly start working on the UR5e with ROS2 Humble we have to:
         ]
     }"
     ````
-## 6. Example Python Script
-
-We have created a node to publish a joint target or a set of joint targets
-
-a) one joint target
-
-- run in a new terminal:
-    ````bash
-    ros2 launch ur5e_kinematics_demo ur5e_joint_target.launch.py
-    ````
-- You can specify the joint target values:
-    ````bash
-    ros2 launch ur5e_kinematics_demo ur5e_joint_target.launch.py target_deg:="[0.0,-90.0,90.0,0.0,90.0,0.0]"
-    ````
-b) multiple joint targets: we define an array where each row has a last value for the accumulated time from the start
-
-- run in a new terminal:
-    ````bash
-    ros2 launch ur5e_kinematics_demo ur5e_joint_targets.launch.py
-    ````
-- You can specify the joint target values:
-    ````bash
-    ros2 launch ur5e_kinematics_demo ur5e_joint_target.launch.py targets_deg:="[[0.0,-90.0,90.0,0.0,90.0,0.0,2.0],[30.0,-60.0,100.0,-20.0,80.0,0.0,5.0],[10.0,-80.0,95.0,-10.0,85.0,15.0,8.0]]"
-    ````
-
-## 6. Use MoveIt
-
-This module 
-```bash
-ros2 launch ur_robot_driver ur_control.launch.py ur_type:=ur5e robot_ip:=192.168.1.4 launch_rviz:=false
-ros2 launch ur_moveit_config ur_moveit.launch.py ur_type:=ur5e launch_rviz:=true
-```
-
-Use RViz's *MotionPlanning* panel to plan and execute motions.
-
-You can also do it in a unique instruction:
-````bash
-ros2 launch ur_robot_driver ur_moveit.launch.py ur_type:=ur5e robot_ip:=192.168.1.4 launch_rviz:=true
-````

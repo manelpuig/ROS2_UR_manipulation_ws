@@ -68,8 +68,8 @@ def generate_launch_description():
     # Motion / runtime
     execute = DeclareLaunchArgument("execute", default_value="true")
     use_sim_time = DeclareLaunchArgument("use_sim_time", default_value="false")
-    max_velocity = DeclareLaunchArgument("max_velocity", default_value="0.3")
-    max_acceleration = DeclareLaunchArgument("max_acceleration", default_value="0.3")
+    max_velocity = DeclareLaunchArgument("max_velocity", default_value="0.1")
+    max_acceleration = DeclareLaunchArgument("max_acceleration", default_value="0.1")
 
     seed_from_joint_states = DeclareLaunchArgument(
         "seed_from_joint_states",

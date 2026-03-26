@@ -36,7 +36,7 @@ Using Gazebo Classic for simulation:
   ```
 - Move the robot to a desired joint configuration: 
   ```bash
-  ros2 launch ur5e_kinematics_demo ur5e_joint_target.launch.py target_deg:="[0.0, -90.0, 90.0, 0.0, 90.0, 0.0]" time_sec:=5.0 controller_topic:=/joint_trajectory_controller/joint_trajectory
+  ros2 launch ur5e_kinematics_control ur5e_joint_target.launch.py target_deg:="[0.0, -90.0, 90.0, 0.0, 90.0, 0.0]" time_sec:=5.0 controller_topic:=/joint_trajectory_controller/joint_trajectory
   ```
 In a real robot UR5e:
 - Run the UR driver:
@@ -45,7 +45,7 @@ In a real robot UR5e:
   ```
 - Move the robot to a desired joint configuration: 
   ```bash
-  ros2 launch ur5e_kinematics_demo ur5e_joint_target.launch.py target_deg:="[0.0, -90.0, 90.0, 0.0, 90.0, 0.0]" time_sec:=5.0 controller_topic:=/scaled_joint_trajectory_controller/joint_trajectory
+  ros2 launch ur5e_kinematics_control ur5e_joint_target.launch.py target_deg:="[0.0, -90.0, 90.0, 0.0, 90.0, 0.0]" time_sec:=5.0 controller_topic:=/scaled_joint_trajectory_controller/joint_trajectory
   ```
 
 ### Forward kinematics for multiple joint targets
@@ -59,7 +59,7 @@ Using Gazebo Classic for simulation:
   ```
 - Move the robot to a desired joint configuration: 
   ```bash
-  ros2 launch ur5e_kinematics_demo ur5e_joint_targets.launch.py controller_topic:=/joint_trajectory_controller/joint_trajectory trajectory_file:=trajectory.yaml
+  ros2 launch ur5e_kinematics_control ur5e_joint_targets.launch.py controller_topic:=/joint_trajectory_controller/joint_trajectory trajectory_file:=trajectory.yaml
   ```
 In a real robot UR5e:
 - Run the UR driver:
@@ -68,5 +68,5 @@ In a real robot UR5e:
   ```
 - Move the robot to a desired joint configuration: 
   ```bash
-  ros2 launch ur5e_kinematics_demo ur5e_joint_targets.launch.py controller_topic:=/scaled_joint_trajectory_controller/joint_trajectory trajectory_file:=trajectory.yaml
+  ros2 launch ur5e_kinematics_control ur5e_joint_targets.launch.py controller_topic:=/scaled_joint_trajectory_controller/joint_trajectory trajectory_file:=trajectory.yaml
   ```

@@ -143,7 +143,7 @@ Bringup Real UR5e robot with MoveIt:
 Compute FK and move for a desired pose:
 
 ```bash
-ros2 launch ur5e_kinematics_pymoveit2 ur5e_move_to_pose.launch.py target_xyz:="[300, 400, 100]" target_rpy:="[180, 0, 180]" seed_from_joint_states:=false seed_joints:="[50, -90, 110, -120, -60, 120]" execute:=true
+ros2 launch ur5e_kinematics_pymoveit2 ur5e_move_to_pose.launch.py target_xyz:="[300, 400, 300]" target_rpy:="[180, 0, 180]" seed_from_joint_states:=false seed_joints:="[50, -90, 110, -120, -60, 120]" execute:=true
 ```
 > remember the reference on base_link for target_xyz and target_rpy!
 

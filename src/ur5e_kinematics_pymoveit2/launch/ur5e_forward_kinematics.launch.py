@@ -39,17 +39,17 @@ def generate_launch_description():
 
     max_velocity = DeclareLaunchArgument(
         "max_velocity",
-        default_value="0.3",
+        default_value="0.1",
     )
 
     max_acceleration = DeclareLaunchArgument(
         "max_acceleration",
-        default_value="0.3",
+        default_value="0.1",
     )
 
     node = Node(
-        package="ur5e_kinematics_demo",
-        executable="ur5e_forward_kinematics_node",
+        package="ur5e_kinematics_pymoveit2",
+        executable="ur5e_forward_kinematics_exe",
         name="ur5e_move_joints",
         output="screen",
         parameters=[

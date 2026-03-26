@@ -19,9 +19,12 @@ def generate_launch_description():
     execute = DeclareLaunchArgument("execute", default_value="false")
     use_sim_time = DeclareLaunchArgument("use_sim_time", default_value="false")
 
+    max_velocity = DeclareLaunchArgument("max_velocity", default_value="0.1")
+    max_acceleration = DeclareLaunchArgument("max_acceleration", default_value="0.1")
+
     node = Node(
-        package="ur5e_kinematics_demo",
-        executable="ur5e_inverse_kinematics_node",
+        package="ur5e_kinematics_pymoveit2",
+        executable="ur5e_inverse_kinematics_exe",
         name="ur5e_inverse_kinematics_node",
         output="screen",
         parameters=[
@@ -33,6 +36,8 @@ def generate_launch_description():
                 "ik_link": LaunchConfiguration("ik_link"),
                 "execute": LaunchConfiguration("execute"),
                 "use_sim_time": LaunchConfiguration("use_sim_time"),
+                "max_velocity": LaunchConfiguration("max_velocity"),
+                "max_acceleration": LaunchConfiguration("max_acceleration"),
             }
         ],
     )
@@ -46,6 +51,8 @@ def generate_launch_description():
             ik_link,
             execute,
             use_sim_time,
+            max_velocity,
+            max_acceleration,
             node,
         ]
     )

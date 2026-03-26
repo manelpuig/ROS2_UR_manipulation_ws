@@ -126,7 +126,7 @@ ros2 launch ur_simulation_gazebo ur_sim_moveit.launch.py ur_type:=ur5e use_sim_t
 Compute FK and move for a desired pose:
 
 ```bash
-ros2 launch ur5e_kinematics_pymoveit2 ur5e_move_to_pose.launch.py target_xyz:="[300, 400, 100]" target_rpy:="[180, 0, 180]" seed_from_joint_states:=false seed_joints:="[50, -90, 110, -180, -60, 180]" execute:=true
+ros2 launch ur5e_kinematics_pymoveit2 ur5e_move_to_pose.launch.py target_xyz:="[300, 400, 100]" target_rpy:="[180, 0, 180]" seed_from_joint_states:=false seed_joints:="[50, -90, 110, -120, -60, 120]" execute:=true
 ```
 > remember the reference on base_link for target_xyz and target_rpy!
 
@@ -151,5 +151,5 @@ pitch ≈ 3.10 rad (instead of π) to avoid numerical edge cases.
 - Pick and place poses are chosen close to the home posture to ensure feasibility and smooth motion.
 
   ```bash
-  ros2 launch ur5e_kinematics_demo ur5e_pick_place.launch.py
+  ros2 launch ur5e_kinematics_pymoveit2 ur5e_pick_place.launch.py
   ````

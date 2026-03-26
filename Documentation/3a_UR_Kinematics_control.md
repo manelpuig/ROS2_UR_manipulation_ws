@@ -1,14 +1,11 @@
-# UR5e Kinematics Package (ROS 2 Humble + MoveIt)
+# UR5e Kinematics Control
 
-This document describes how to create and use a simple ROS 2 package that provides **forward** and **inverse kinematics** tools for a **UR5e** robot using **MoveIt 2**.
+This document describes how to create and use a simple ROS 2 package that provides **forward kinematics** for a **UR5e** robot
 
 The package contains two nodes:
 
-- `ur5e_forward_kinematics_node` – you specify the 6 joint angles → it computes the end–effector pose.
-- `ur5e_inverse_kinematics_node` – you specify a target pose (x, y, z, roll, pitch, yaw) → it computes one joint solution.
-
-Both nodes call the standard MoveIt services `/compute_fk` and `/compute_ik`, so **MoveIt’s `move_group` must be running** (e.g., via `ur_moveit_config`).
-
+- `ur5e_joint_target` – you specify the 6 joint angles.
+- `ur5e_joint_targets` – you specify the 6 joint angles for multiple waypoints.
 
 
 ## Create the package
@@ -17,7 +14,6 @@ In your workspace:
 
 ```bash
 cd ~/ROS2_UR_manipulation_ws/src
-
 ros2 pkg create ur5e_kinematics_demo --build-type ament_python
 ```
 
@@ -27,104 +23,50 @@ This creates a Python-based ROS 2 package.
 
 ```bash
 cd ~/ROS2_UR_manipulation_ws
-colcon build --symlink-install
+colcon build 
 source install/setup.bash
 ```
 
-
-### Forward kinematics
-
-Using Gazebo Classic for simulation:
-- UR5e robot without gripper
-  ```bash
-  ros2 launch ur_simulation_gazebo ur_sim_moveit.launch.py ur_type:=ur5e use_sim_time:=true
-  ```
-- UR5e robot with custom gripper 2FG7:
-  ```bash
-  ros2 launch ur_simulation_gazebo ur_sim_moveit.launch.py ur_type:=ur5e description_package:=my_ur_description description_file:=ur_2fg7.urdf.xacro use_sim_time:=true
-  ```
-Compute FK and move for a given joint configuration:
-
-```bash
-ros2 launch ur5e_kinematics_pymoveit2 ur5e_forward_kinematics.launch.py joints:="[1.0, -1.5, 2.0, -3.0, -1.0, 3.0]" execute:=true
-```
-
-### Inverse kinematics
-
-It is important to note that:
-- POSE in roboDK is referenced to `base` frame
-- POSE in ROS2 (Gazebo) is referenced to `base_link` frame
-
-![Gazebo_base_link](./Images/gazebo_base_link.png)
-> This POSE corresponds to `zero_angle` in our Real robot ur5e paltform
-
-UR robots have `base_link` frame 180 deg from `base` frame, then:
-````python
-x_ros  = -x_robodk
-y_ros  = -y_robodk
-z_ros  =  z_robodk
-
-roll_ros = roll_robodk
-pitch_ros = pitch_robodk
-yaw_ros ≈ yaw_robodk + π
-````
+### Forward kinematics for 1 joint target
 
 Using Gazebo Classic for simulation:
-
-```bash
-ros2 launch ur_simulation_gazebo ur_sim_moveit.launch.py ur_type:=ur5e use_sim_time:=true
-```
-
-Compute FK and move for a desired pose:
-
-```bash
-ros2 launch ur5e_kinematics_pymoveit2 ur5e_inverse_kinematics.launch.py target_xyz:="[0.0, 0.4, 0.5]" target_rpy:="[1.57, 0.0, 3.14]" seed_joints:="[1.0, -1.5, 2.0, -3.0, -1.0, 3.0]" execute:=true
-```
-> It is important to choose proper seed_joints to help moveit to find the desired configuration branch
-
-### Go to Pose
-
-The minimal proposed solution is based on a node that:
-- converts the target pose into a quaternion, 
-- calls MoveIt’s /compute_ik service to get a joint solution, 
-- and then executes that joint goal with move_to_configuration()
-
-Using Gazebo and MoveIt for simulation:
-
-```bash
-ros2 launch ur5e_kinematics_demo ur5e_sim_moveit.launch.py ur_type:=ur5e use_sim_time:=true
-```
-
-Compute FK and move for a desired pose:
-
-```bash
-ros2 launch ur5e_kinematics_demo ur5e_move_to_pose.launch.py target_xyz:="[-0.3, -0.40, 0.1]" target_rpy:="[3.14, 0.0, 0.0]" execute:=true
-```
-> You have to install `spatialmath` lib:
-````python
-python3 -m pip install --user spatialmath-python
-````
-
-### Pick and Place
-
-This program is configured with:
-- The robot first moves to a known home joint configuration.
-
-- Each pick-and-place step is defined as a target pose (position + orientation).
-
-- For every pose:
-
-  - MoveIt’s /compute_ik service is called to compute joint angles.
-
-  - The solution is seeded with joints close to the current posture to keep the same IK branch.
-
-  - The joint goal is executed with move_to_configuration().
-
-- The tool orientation is set to look downwards using
-pitch ≈ 3.10 rad (instead of π) to avoid numerical edge cases.
-
-- Pick and place poses are chosen close to the home posture to ensure feasibility and smooth motion.
-
+- Bringup UR5e on Gazebo:
   ```bash
-  ros2 launch ur5e_kinematics_demo ur5e_pick_place.launch.py
-  ````
+  ros2 launch ur_simulation_gazebo ur_sim_control.launch.py ur_type:=ur5e use_sim_time:=true
+  ```
+- Move the robot to a desired joint configuration: 
+  ```bash
+  ros2 launch ur5e_kinematics_demo ur5e_joint_target.launch.py target_deg:="[0.0, -90.0, 90.0, 0.0, 90.0, 0.0]" time_sec:=5.0 controller_topic:=/joint_trajectory_controller/joint_trajectory
+  ```
+In a real robot UR5e:
+- Run the UR driver:
+  ```bash
+  ros2 launch ur_robot_driver ur_control.launch.py ur_type:=ur5e robot_ip:=192.168.1.4 launch_rviz:=false
+  ```
+- Move the robot to a desired joint configuration: 
+  ```bash
+  ros2 launch ur5e_kinematics_demo ur5e_joint_target.launch.py target_deg:="[0.0, -90.0, 90.0, 0.0, 90.0, 0.0]" time_sec:=5.0 controller_topic:=/scaled_joint_trajectory_controller/joint_trajectory
+  ```
+
+### Forward kinematics for multiple joint targets
+
+An extension of the previous node allows to specify multiple joint targets (waypoints) and the time to reach each waypoint.
+
+Using Gazebo Classic for simulation:
+- Bringup UR5e on Gazebo:
+  ```bash
+  ros2 launch ur_simulation_gazebo ur_sim_control.launch.py ur_type:=ur5e use_sim_time:=true
+  ```
+- Move the robot to a desired joint configuration: 
+  ```bash
+  ros2 launch ur5e_kinematics_demo ur5e_joint_targets.launch.py controller_topic:=/joint_trajectory_controller/joint_trajectory trajectory_file:=trajectory.yaml
+  ```
+In a real robot UR5e:
+- Run the UR driver:
+  ```bash
+  ros2 launch ur_robot_driver ur_control.launch.py ur_type:=ur5e robot_ip:=192.168.1.4 launch_rviz:=false
+  ```
+- Move the robot to a desired joint configuration: 
+  ```bash
+  ros2 launch ur5e_kinematics_demo ur5e_joint_targets.launch.py controller_topic:=/scaled_joint_trajectory_controller/joint_trajectory trajectory_file:=trajectory.yaml
+  ```

@@ -10,8 +10,8 @@
 common:
   execute: true
   group_name: ur_manipulator
-  #ik_link: tool0
-  ik_link: 2fg7_tcp
+  ik_link: tool0
+  #ik_link: 2fg7_tcp
   max_velocity: 0.3
   max_acceleration: 0.3
   print_joints: true

@@ -27,6 +27,7 @@ setup(
             'ur5e_inverse_kinematics_exe = ur5e_kinematics_pymoveit2.ur5e_inverse_kinematics_node:main',
             'ur5e_move_to_pose_exe = ur5e_kinematics_pymoveit2.ur5e_move_to_pose:main',
             'ur5e_pick_place_exe = ur5e_kinematics_pymoveit2.ur5e_pick_place:main',
+            "ur5e_gripper_command_exe = ur5e_kinematics_pymoveit2.ur5e_gripper_command:main",
         ],
     },
 )

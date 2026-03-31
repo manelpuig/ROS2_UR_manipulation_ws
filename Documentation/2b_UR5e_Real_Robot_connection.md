@@ -27,7 +27,7 @@ To properly work on ros2 Humble, the Polyscope version has to be higher than 5.9
 
 The file we have to download is: https://www.universal-robots.com/download/software-ur-series/update/latest-polyscope-software-update-sw-5251-ur-series-e-series/
 
-### 2.2. URCap externalcontrol
+### 2.2. URCap externalcontrol installation
 Download:
 ```
 externalcontrol-1.0.urcap
@@ -55,7 +55,13 @@ The configuration is based on the PC IP the robot has to connect to.
     - **Port:** `50002`
 
 ## 2.3. ROS2 External Control Program
-We first create a new program `ROS2_external_control.urp` including only the `External Control` instruction configured before
+We first create a new program `ROS2_External_Control_PC1.urp` including only the `External Control` instruction configured before
+
+Suggested Lab procedure:
+- Create one Installation file per PC_IP (ROS2_PC1.installation, ROS2_PC2.installation, etc.)
+- Create one URP file per PC on lab (ROS2_External_Control_PC1.urp, ROS2_External_Control_PC1.urp, etc.)
+- Save these 2 files in a speciffic folder (ROS2_PC1. ROS2_PC2, etc)
+- To connect UR5e to speciffic PC, open `ROS2_External_Control_PC1.urp` on teach pendant. The installation file will be by default the one used when you have saved the urp file.
 
 ## 3. PC Configuration
 
@@ -85,7 +91,7 @@ To properly start working on the UR5e with ROS2 Humble we have to:
         ros2 launch ur_robot_driver ur_control.launch.py ur_type:=ur5e robot_ip:=192.168.1.4 launch_rviz:=false
         ```
 - Now on `Teach Pendant`:
-    - Load program: **ROS2_external_control.urp**
+    - Load program: **ROS2_External_Control_PCx.urp**
     - Press **Play**  
 
 ## 5. Verify Joint States and run a first movement

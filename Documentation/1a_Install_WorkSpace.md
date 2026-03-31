@@ -63,12 +63,6 @@ Using Gazebo for simulation:
 ```bash
 ros2 launch ur_simulation_gazebo ur_sim_control.launch.py ur_type:=ur5e use_sim_time:=true
 ```
-Or launching the UR5e ROS 2 driver (fake hardware):
-```bash
-ros2 launch ur_robot_driver ur_control.launch.py ur_type:=ur5e robot_ip:=1.2.3.4 use_fake_hardware:=true launch_rviz:=false
-````
-> the parameter robot_ip is mandatory but ignored if use_fake_hardware:=true 
----
 
 ## 6. Launch MoveIt2 for UR5e
 

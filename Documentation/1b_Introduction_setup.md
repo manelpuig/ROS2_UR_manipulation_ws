@@ -66,15 +66,15 @@ To work on the project (during lab sessions or for homework), each student has t
 We have now our workspace ready with the gripper only used for simulation purposes.
 
 Let's start Gazebo for simulation:
-```bash
-ros2 launch ur_simulation_gazebo ur_sim_control.launch.py ur_type:=ur5e use_sim_time:=true
-```
-Or launching the UR5e ROS 2 driver (fake hardware):
-```bash
-ros2 launch ur_robot_driver ur_control.launch.py ur_type:=ur5e robot_ip:=1.2.3.4 use_fake_hardware:=true launch_rviz:=false
-````
-> the parameter robot_ip is mandatory but ignored if use_fake_hardware:=true 
-
+- Bringup the UR5e robot arm in virtual environment:
+  ```bash
+  ros2 launch ur_simulation_gazebo ur_sim_control.launch.py ur_type:=ur5e use_sim_time:=true
+  ```
+- Move the robot to a desired joint configuration: 
+  ```bash
+  ros2 launch ur5e_kinematics_control ur5e_joint_target.launch.py target_deg:="[0.0, -90.0, 90.0, 0.0, 90.0, 0.0]" time_sec:=5.0 controller_topic:=/joint_trajectory_controller/joint_trajectory
+  ```
+You are ready to work on ROS2 to control the UR5e robot pose!
 
 ## **3. Update and syncronize the repository project**
 

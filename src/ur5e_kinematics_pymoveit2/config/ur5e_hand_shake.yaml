@@ -38,19 +38,19 @@ steps:
     sleep_after: 1.0
 
   - name: approach_handshake
-    target_xyz: [-250, -350, 250]
+    target_xyz: [-250, -350, 300]
     target_rpy: [90, 0, 0]
     seed_from_joint_states: true
     sleep_after: 1.0
 
   - name: handshake
-    target_xyz: [-250, -350, 150]
+    target_xyz: [-250, -350, 200]
     target_rpy: [90, 0, 0]
     seed_from_joint_states: true
     sleep_after: 1.0
 
   - name: retreat_handshake
-    target_xyz: [-250, -350, 250]
+    target_xyz: [-250, -350, 300]
     target_rpy: [90, 0, 0]
     seed_from_joint_states: true
     sleep_after: 1.0

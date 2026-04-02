@@ -10,6 +10,7 @@ from moveit_msgs.srv import GetPositionIK
 
 from pymoveit2 import MoveIt2
 
+
 UR5E_JOINTS = [
     "shoulder_pan_joint",
     "shoulder_lift_joint",
@@ -24,6 +25,7 @@ def quat_from_rpy_zyx(roll: float, pitch: float, yaw: float):
     """
     Convention:
       R = Rz(yaw) * Ry(pitch) * Rx(roll)
+
     Returns quaternion in ROS order: (qx, qy, qz, qw).
     """
     cy = math.cos(yaw * 0.5)
@@ -37,18 +39,33 @@ def quat_from_rpy_zyx(roll: float, pitch: float, yaw: float):
     qx = sr * cp * cy - cr * sp * sy
     qy = cr * sp * cy + sr * cp * sy
     qz = cr * cp * sy - sr * sp * cy
+
     return float(qx), float(qy), float(qz), float(qw)
 
 
 class UR5eMoveToPoseViaIK(Node):
     """
     Workflow:
-      Pose goal -> /compute_ik -> joint goal -> MoveIt2 move_to_configuration -> execute.
+      Pose goal -> /compute_ik -> joint goal -> MoveIt2 move_to_configuration -> execute
 
     Seed strategy:
       - If seed_from_joint_states:=true and /joint_states is available,
-        use the CURRENT robot joint state as IK seed (best to avoid IK branch flips).
+        use the current robot joint state as IK seed.
       - Otherwise use seed_joints parameter.
+
+    Pose convention:
+      - pose_input_frame = "base":
+          target_xyz and target_rpy are already expressed in ROS base_link frame.
+      - pose_input_frame = "table":
+          target_xyz and target_rpy are expressed in an intuitive table/workspace
+          frame, assuming the robot base frame is rotated 180 deg around Z with
+          respect to that table frame.
+
+          Conversion applied:
+            x_base = -x_table
+            y_base = -y_table
+            z_base =  z_table
+            yaw_base = yaw_table + table_frame_yaw_offset_deg
     """
 
     def __init__(self):
@@ -57,6 +74,10 @@ class UR5eMoveToPoseViaIK(Node):
         # --- Pose target
         self.declare_parameter("target_xyz", [0.35, 0.00, 0.45])
         self.declare_parameter("target_rpy", [0.0, 0.0, 0.0])  # roll,pitch,yaw [rad]
+
+        # --- Pose input convention
+        self.declare_parameter("pose_input_frame", "base")   # "base" or "table"
+        self.declare_parameter("table_frame_yaw_offset_deg", 180.0)
 
         # --- IK settings
         self.declare_parameter("group_name", "ur_manipulator")
@@ -75,12 +96,17 @@ class UR5eMoveToPoseViaIK(Node):
         # --- Debug
         self.declare_parameter("print_joints", False)
 
-        # --- NEW: choose seed source
+        # --- Seed source
         self.declare_parameter("seed_from_joint_states", True)
 
         # Read params
         self.target_xyz = [float(x) for x in self.get_parameter("target_xyz").value]
         self.target_rpy = [float(x) for x in self.get_parameter("target_rpy").value]
+
+        self.pose_input_frame = str(self.get_parameter("pose_input_frame").value).strip().lower()
+        self.table_frame_yaw_offset_deg = float(
+            self.get_parameter("table_frame_yaw_offset_deg").value
+        )
 
         self.group_name = str(self.get_parameter("group_name").value)
         self.ik_link = str(self.get_parameter("ik_link").value)
@@ -94,14 +120,31 @@ class UR5eMoveToPoseViaIK(Node):
 
         self.seed_from_joint_states = bool(self.get_parameter("seed_from_joint_states").value)
 
+        # Basic validation
+        if len(self.target_xyz) != 3:
+            raise ValueError("Parameter 'target_xyz' must contain exactly 3 values.")
+        if len(self.target_rpy) != 3:
+            raise ValueError("Parameter 'target_rpy' must contain exactly 3 values.")
+        if len(self.seed_joints) != 6:
+            raise ValueError("Parameter 'seed_joints' must contain exactly 6 values.")
+        if self.pose_input_frame not in ("base", "table"):
+            raise ValueError(
+                "Parameter 'pose_input_frame' must be either 'base' or 'table'."
+            )
+
         # Cache the latest joint state
         self._last_js = None
-        self.create_subscription(JointState, "/joint_states", self._js_cb, qos_profile_sensor_data)
+        self.create_subscription(
+            JointState,
+            "/joint_states",
+            self._js_cb,
+            qos_profile_sensor_data,
+        )
 
-        # --- IK service client
+        # IK service client
         self.ik_client = self.create_client(GetPositionIK, "/compute_ik")
 
-        # --- MoveIt2 (joint execution)
+        # MoveIt2 joint execution
         self.moveit2 = MoveIt2(
             node=self,
             joint_names=UR5E_JOINTS,
@@ -118,6 +161,35 @@ class UR5eMoveToPoseViaIK(Node):
     def _js_cb(self, msg: JointState):
         self._last_js = msg
 
+    def _convert_input_pose_to_base(self, xyz, rpy):
+        """
+        Convert input pose convention to ROS base_link convention.
+
+        Supported input conventions:
+          - "base": pose is already expressed in base_link
+          - "table": pose is expressed in an intuitive table frame where the
+                     UR base frame is rotated around Z with respect to the table
+
+        For "table":
+          x_base = -x_table
+          y_base = -y_table
+          z_base =  z_table
+          yaw_base = yaw_table + offset
+        """
+        if self.pose_input_frame == "base":
+            return list(xyz), list(rpy)
+
+        # table -> base_link
+        x, y, z = xyz
+        roll, pitch, yaw = rpy
+
+        yaw_offset = math.radians(self.table_frame_yaw_offset_deg)
+
+        xyz_base = [-x, -y, z]
+        rpy_base = [roll, pitch, yaw + yaw_offset]
+
+        return xyz_base, rpy_base
+
     def _run_once(self):
         if self._done:
             return
@@ -129,21 +201,36 @@ class UR5eMoveToPoseViaIK(Node):
             rclpy.shutdown()
             return
 
-        # 2) Build pose target (in base_link)
-        roll, pitch, yaw = self.target_rpy
+        # 2) Convert input pose convention -> base_link pose
+        target_xyz_base, target_rpy_base = self._convert_input_pose_to_base(
+            self.target_xyz,
+            self.target_rpy,
+        )
+
+        roll, pitch, yaw = target_rpy_base
         qx, qy, qz, qw = quat_from_rpy_zyx(roll, pitch, yaw)
 
         pose = PoseStamped()
         pose.header.frame_id = "base_link"
         pose.header.stamp = self.get_clock().now().to_msg()
-        pose.pose.position.x, pose.pose.position.y, pose.pose.position.z = self.target_xyz
+
+        pose.pose.position.x = float(target_xyz_base[0])
+        pose.pose.position.y = float(target_xyz_base[1])
+        pose.pose.position.z = float(target_xyz_base[2])
+
         pose.pose.orientation.x = qx
         pose.pose.orientation.y = qy
         pose.pose.orientation.z = qz
         pose.pose.orientation.w = qw
 
         self.get_logger().info(
-            f"Pose goal (via IK): xyz={self.target_xyz}, rpy={self.target_rpy}, quat_xyzw={[qx, qy, qz, qw]}"
+            f"Pose goal input ({self.pose_input_frame} frame): "
+            f"xyz={self.target_xyz}, rpy={self.target_rpy}"
+        )
+        self.get_logger().info(
+            f"Pose goal in base_link: "
+            f"xyz={target_xyz_base}, rpy={target_rpy_base}, "
+            f"quat_xyzw={[qx, qy, qz, qw]}"
         )
 
         # 3) Build IK request
@@ -152,7 +239,9 @@ class UR5eMoveToPoseViaIK(Node):
         req.ik_request.ik_link_name = self.ik_link
         req.ik_request.pose_stamped = pose
         req.ik_request.timeout.sec = int(self.ik_timeout)
-        req.ik_request.timeout.nanosec = int((self.ik_timeout - int(self.ik_timeout)) * 1e9)
+        req.ik_request.timeout.nanosec = int(
+            (self.ik_timeout - int(self.ik_timeout)) * 1e9
+        )
 
         # Choose seed: joint_states (preferred) or configured seed_joints
         seed_positions = list(self.seed_joints)
@@ -163,6 +252,11 @@ class UR5eMoveToPoseViaIK(Node):
                 seed_positions = [float(name_to_pos[j]) for j in UR5E_JOINTS]
                 if self.print_joints:
                     self.get_logger().info("Using /joint_states as IK seed (UR5e order).")
+            else:
+                self.get_logger().warn(
+                    "/joint_states received but does not contain all UR5e joints. "
+                    "Falling back to seed_joints."
+                )
 
         seed = JointState()
         seed.header = pose.header
@@ -189,7 +283,13 @@ class UR5eMoveToPoseViaIK(Node):
 
         sol = res.solution.joint_state
         name_to_pos = {n: p for n, p in zip(sol.name, sol.position)}
-        joint_goal = [float(name_to_pos[j]) for j in UR5E_JOINTS]
+
+        try:
+            joint_goal = [float(name_to_pos[j]) for j in UR5E_JOINTS]
+        except KeyError as e:
+            self.get_logger().error(f"IK solution missing expected joint: {e}")
+            rclpy.shutdown()
+            return
 
         if self.print_joints:
             self.get_logger().info("IK joint goal (UR5e order):")

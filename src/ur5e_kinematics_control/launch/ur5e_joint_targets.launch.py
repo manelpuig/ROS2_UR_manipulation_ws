@@ -10,15 +10,17 @@ def generate_launch_description():
     trajectory_file = PathJoinSubstitution([
         FindPackageShare("ur5e_kinematics_control"),
         "config",
-        LaunchConfiguration("trajectory_name")
+        LaunchConfiguration("trajectory_file")
     ])
 
     return LaunchDescription([
+
         DeclareLaunchArgument(
-            "trajectory_name",
+            "trajectory_file",
             default_value="trajectory.yaml",
-            description="YAML filename inside package config folder"
+            description="YAML filename inside config folder"
         ),
+
         DeclareLaunchArgument(
             "controller_topic",
             default_value="/joint_trajectory_controller/joint_trajectory"

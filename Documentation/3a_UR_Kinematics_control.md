@@ -50,7 +50,7 @@ In a real robot UR5e:
 
 ### Forward kinematics for multiple joint targets
 
-An extension of the previous node allows to specify multiple joint targets (waypoints) and the time to reach each waypoint.
+An extension of the previous node allows to specify multiple joint targets (waypoints) and the time to reach each waypoint (the time is the accumulated time, not the time to execute each movement!).
 
 Using Gazebo Classic for simulation:
 - Bringup UR5e on Gazebo:
